@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace MiscUtil
@@ -47,6 +48,70 @@ namespace MiscUtil
 
             if (length < sb.Length)
                 sb.Length = length;
+
+            return sb;
+        }
+
+        /// <summary>
+        /// Converts all the characters in the <see cref="StringBuilder"/> to upper-case, using the given culture.
+        /// </summary>
+        public static StringBuilder ToUpper(this StringBuilder sb, CultureInfo culture)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            for (int i = 0; i < sb.Length; i++)
+            {
+                sb[i] = char.ToUpper(sb[i], culture);
+            }
+
+            return sb;
+        }
+
+        /// <summary>
+        /// Converts all the characters in the <see cref="StringBuilder"/> to upper-case, using the invariant culture.
+        /// </summary>
+        public static StringBuilder ToUpperInvariant(this StringBuilder sb)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            for (int i = 0; i < sb.Length; i++)
+            {
+                sb[i] = char.ToUpperInvariant(sb[i]);
+            }
+
+            return sb;
+        }
+
+        /// <summary>
+        /// Converts all the characters in the <see cref="StringBuilder"/> to lower-case, using the given culture.
+        /// </summary>
+        public static StringBuilder ToLower(this StringBuilder sb, CultureInfo culture)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            for (int i = 0; i < sb.Length; i++)
+            {
+                sb[i] = char.ToLower(sb[i], culture);
+            }
+
+            return sb;
+        }
+
+        /// <summary>
+        /// Converts all the characters in the <see cref="StringBuilder"/> to lower-case, using the invariant culture.
+        /// </summary>
+        public static StringBuilder ToLowerInvariant(this StringBuilder sb)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            for (int i = 0; i < sb.Length; i++)
+            {
+                sb[i] = char.ToLowerInvariant(sb[i]);
+            }
 
             return sb;
         }
