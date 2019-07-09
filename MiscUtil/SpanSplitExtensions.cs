@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 // based on: https://gist.github.com/LordJZ/92b7decebe52178a445a0b82f63e585a
+
 namespace MiscUtil
 {
     public static class SpanSplitExtensions
