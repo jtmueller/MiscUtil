@@ -15,7 +15,7 @@ namespace MiscUtil
         public static StringBuilder TrimEnd(this StringBuilder sb, params char[] trimChars)
         {
             if (sb is null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(sb));
 
             if (sb.Length == 0)
                 return sb;
@@ -50,5 +50,28 @@ namespace MiscUtil
 
             return sb;
         }
+
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Appends the characters in the specified <see cref="ReadOnlySpan{char}"/> to this instance.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="chars"></param>
+        /// <returns></returns>
+        public static StringBuilder Append(this StringBuilder sb, ReadOnlySpan<char> chars)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            int startIndex = sb.Length;
+            sb.Length += chars.Length;
+            for (int i = 0; i < chars.Length; i++)
+            {
+                sb[startIndex + i] = chars[i];
+            }
+
+            return sb;
+        }
+#endif
     }
 }

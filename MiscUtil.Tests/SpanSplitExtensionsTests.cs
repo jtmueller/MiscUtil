@@ -15,7 +15,7 @@ namespace MiscUtil.Tests
         [InlineData("aaaaab", 'a')]
         [InlineData("baaaaa", 'a')]
         [InlineData("zzzzzazzzzazzzzazzz", 'a')]
-        public void Test(string str, char separator)
+        public void SplitOneChar(string str, char separator)
         {
             var parts = new List<string>();
 
