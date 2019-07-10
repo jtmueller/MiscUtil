@@ -10,8 +10,12 @@ namespace MiscUtil.Tests
         [InlineData("0", 0)]
         [InlineData("3912", 3912)]
         [InlineData(" 42 ", 42)]
-        [InlineData(" -17", -17)]
+        [InlineData("-17923568", -17923568)]
         [InlineData("bogus", null)]
+        [InlineData("1234abc", null)]
+        [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+            "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
         public void IntParsing(string input, int? expected)
         {
             Assert.Equal(expected, input.AsSpan().ToInt32());
@@ -21,8 +25,12 @@ namespace MiscUtil.Tests
         [InlineData("0", 0.0)]
         [InlineData("3912.1234", 3912.1234)]
         [InlineData(" 42.8 ", 42.8)]
-        [InlineData(" -17.1", -17.1)]
+        [InlineData("-17923568.1", -17923568.1)]
         [InlineData("bogus", null)]
+        [InlineData("12345.67abc", null)]
+        [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+            "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
         public void DoubleParsing(string input, double? expected)
         {
             Assert.Equal(expected, input.AsSpan().ToDouble());
@@ -35,6 +43,10 @@ namespace MiscUtil.Tests
             yield return new object[] { " 42.8 ", 42.8M };
             yield return new object[] { " -17.1", -17.1M };
             yield return new object[] { "bogus", null };
+            yield return new object[] { "12345.67abc", null };
+            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+                "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+                "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null };
         }
 
         [Theory]
@@ -50,15 +62,41 @@ namespace MiscUtil.Tests
         [InlineData(" True ", true)]
         [InlineData(" False ", false)]
         [InlineData("bogus", null)]
+        [InlineData("TrueButNotReally", null)]
+        [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " + 
+            "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+            "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
         public void BoolParsing(string input, bool? expected)
         {
             Assert.Equal(expected, input.AsSpan().ToBoolean());
+        }
+
+        public static IEnumerable<object[]> GuidData()
+        {
+            foreach (var f in new[] { "N", "D", "B", "P" })
+            {
+                var g = Guid.NewGuid();
+                yield return new object[] { g.ToString(f), g };
+            }
+            yield return new object[] { "abcdefg", null };
+            yield return new object[] { " 286f4642-17fe-4930-86c5-d171c8ca74d2 ", new Guid("286f4642-17fe-4930-86c5-d171c8ca74d2") };
+            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+                "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+                "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null };
+        }
+
+        [Theory]
+        [MemberData(nameof(GuidData))]
+        public void GuidParsing(string input, Guid? expected)
+        {
+            Assert.Equal(expected, input.AsSpan().ToGuid());
         }
 
         [Theory]
         [InlineData("abcdef", "abcdef")]
         [InlineData(" abcdef ", "abcdef   ")]
         [InlineData("\tabcdef\n", " abcdef\t\t\r\n")]
+        [InlineData("abc ", " def")]
         public void TrimEquals(string input1, string input2)
         {
             Assert.Equal(input1.Trim().Equals(input2.Trim(), StringComparison.Ordinal), input1.TrimEquals(input2, StringComparison.Ordinal));
