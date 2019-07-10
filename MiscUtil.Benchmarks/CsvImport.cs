@@ -11,8 +11,8 @@ namespace MiscUtil.Benchmarks
         public void SumDataStrings()
         {
             int unitsSold = 0;
-            decimal totalRevenue = 0M;
-            decimal totalCost = 0M;
+            double totalRevenue = 0.0;
+            double totalCost = 0.0;
 
             int lineNum = 0;
             foreach (var line in s_lines.Split(new[] { "\r\n" }, StringSplitOptions.None))
@@ -29,10 +29,10 @@ namespace MiscUtil.Benchmarks
                             unitsSold += int.TryParse(part, out int u) ? u : 0;
                             break;
                         case 11:
-                            totalRevenue += decimal.TryParse(part, out decimal tr) ? tr : 0;
+                            totalRevenue += double.TryParse(part, out double tr) ? tr : 0;
                             break;
                         case 12:
-                            totalCost += decimal.TryParse(part, out decimal tc) ? tc : 0;
+                            totalCost += double.TryParse(part, out double tc) ? tc : 0;
                             break;
                     }
                 }
@@ -45,8 +45,8 @@ namespace MiscUtil.Benchmarks
         public void SumDataSpans()
         {
             int unitsSold = 0;
-            decimal totalRevenue = 0M;
-            decimal totalCost = 0M;
+            double totalRevenue = 0.0;
+            double totalCost = 0.0;
 
             int lineNum = 0;
             foreach (var line in s_lines.AsSpan().Split("\r\n".AsSpan()))
@@ -63,10 +63,10 @@ namespace MiscUtil.Benchmarks
                             unitsSold += part.ToInt32().GetValueOrDefault();
                             break;
                         case 11:
-                            totalRevenue += part.ToDecimal().GetValueOrDefault();
+                            totalRevenue += part.ToDouble().GetValueOrDefault();
                             break;
                         case 12:
-                            totalCost += part.ToDecimal().GetValueOrDefault();
+                            totalCost += part.ToDouble().GetValueOrDefault();
                             break;
                     }
                 }
@@ -76,7 +76,7 @@ namespace MiscUtil.Benchmarks
         }
 
         #region CSV Literal
-        private const string s_lines = 
+        private const string s_lines =
 @"Region,Country,Item Type,Sales Channel,Order Priority,Order Date,Order ID,Ship Date,Units Sold,Unit Price,Unit Cost,Total Revenue,Total Cost,Total Profit
 Middle East and North Africa,Libya,Cosmetics,Offline,M,10/18/2014,686800706,10/31/2014,8446,437.20,263.33,3692591.20,2224085.18,1468506.02
 North America,Canada,Vegetables,Online,M,11/7/2011,185941302,12/8/2011,3018,154.06,90.93,464953.08,274426.74,190526.34
