@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit;
 
 namespace MiscUtil.Tests
@@ -92,8 +93,58 @@ namespace MiscUtil.Tests
             Assert.Equal(expected, input.AsSpan().ToGuid());
         }
 
+        public static IEnumerable<object[]> DateTimeData()
+        {
+            // Utf8Parser only supports these formats:
+#if NET48
+            foreach (var f in new[] { "G", "O", "R" })
+#else
+            foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "O", "R", "s", "t", "T", "u", "U", "y" })
+#endif
+            {
+                var ds = DateTime.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
+                yield return new object[] { ds, f[0], DateTime.ParseExact(ds, f, CultureInfo.InvariantCulture) };
+            }
+            yield return new object[] { "abcdefg", '\0', null };
+            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+                "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+                "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", '\0', null };
+        }
+
         [Theory]
-        [InlineData("abcdef", "abcdef")]
+        [MemberData(nameof(DateTimeData))]
+        public void DateTimeParsing(string input, char format, DateTime? expected)
+        {
+            Assert.Equal(expected, input.AsSpan().ToDateTime(format));
+        }
+
+        public static IEnumerable<object[]> DateTimeOffsetData()
+        {
+            // Utf8Parser only supports these formats:
+#if NET48
+            foreach (var f in new[] { "G", "R" })
+#else
+            foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "R", "s", "t", "T", "u", "y" })
+#endif
+            {
+                var ds = DateTimeOffset.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
+                yield return new object[] { ds, f[0], DateTimeOffset.ParseExact(ds, f, CultureInfo.InvariantCulture) };
+            }
+            yield return new object[] { "abcdefg", '\0', null };
+            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+                "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+                "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", '\0', null };
+        }
+
+        [Theory]
+        [MemberData(nameof(DateTimeOffsetData))]
+        public void DateTimeOffsetParsing(string input, char format, DateTimeOffset? expected)
+        {
+            Assert.Equal(expected, input.AsSpan().ToDateTimeOffset(format));
+        }
+
+        [Theory]
+        [InlineData("abc def", "abc def")]
         [InlineData(" abcdef ", "abcdef   ")]
         [InlineData("\tabcdef\n", " abcdef\t\t\r\n")]
         [InlineData("abc ", " def")]

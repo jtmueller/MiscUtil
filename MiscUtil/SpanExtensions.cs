@@ -2,8 +2,10 @@
 #if NETSTANDARD2_0
 using System.Buffers;
 using System.Buffers.Text;
-using System.Collections.Generic;
 using System.Text;
+#else
+using System.Collections.Generic;
+using System.Globalization;
 #endif
 
 namespace MiscUtil
@@ -49,9 +51,6 @@ namespace MiscUtil
 
         /// <summary>
         ///     Parses an integer from a char span consisting only of numeric characters, prefixed by an optional minus sign.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
-        ///     Does not support globalization. In .NET Core or a hypothetical future version of .NET Framework with built-in
-        ///     support for parsing char spans, this method will be obsolete.
         /// </summary>
 #if NETSTANDARD2_0
         public static int? ToInt32(this ReadOnlySpan<char> source)
@@ -87,7 +86,6 @@ namespace MiscUtil
 
         /// <summary>
         ///     Parses a double from a char span consisting only of numeric characters, prefixed by an optional minus sign.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
         /// </summary>
 #if NETSTANDARD2_0
         public static unsafe double? ToDouble(this ReadOnlySpan<char> source)
@@ -137,7 +135,6 @@ namespace MiscUtil
 
         /// <summary>
         ///     Parses a decimal from a char span consisting only of numeric characters, prefixed by an optional minus sign.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
         /// </summary>
 #if NETSTANDARD2_0
         public static unsafe decimal? ToDecimal(this ReadOnlySpan<char> source)
@@ -186,11 +183,8 @@ namespace MiscUtil
 #endif
 
         /// <summary>
-        ///     Parses a GUID from a char span.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
+        ///     Parses a <see cref="Guid"/> from a char span.
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
 #if NETSTANDARD2_0
         public static unsafe Guid? ToGuid(this ReadOnlySpan<char> source)
         {
@@ -220,11 +214,8 @@ namespace MiscUtil
                     fixed (byte* bp = bytes)
                     {
                         int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out Guid value, out int bytesConsumed, formatChar))
+                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out Guid value, out _, formatChar))
                         {
-                            // If we didn't consume all the bytes, it should fail to parse.
-                            if (bytesConsumed < encodedByteCount)
-                                return null;
                             return value;
                         }
                     }
@@ -247,88 +238,190 @@ namespace MiscUtil
         }
 #endif
 
-        /* REMOVED: DateTime parsing using Utf8Parser doesn't seem to work at the moment. 
-         * Commenting out so nobody uses these currently-broken methods by mistake.
-
+#if NETSTANDARD2_0
         /// <summary>
-        ///     Parses a DateTime from a char span.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
+        ///     Parses a <see cref="DateTime"/> from a char span. Limited format support: Only supports the G, O, and R DateTime formats.
         /// </summary>
-        /// <param name="source"></param>
-        public static DateTime? ToDateTime(this ReadOnlySpan<char> source)
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing. Only the following formats are supported: G, O, R.</param>
+        public static unsafe DateTime? ToDateTime(this ReadOnlySpan<char> source, char format = '\0')
         {
+            source = source.Trim();
             if (source.IsEmpty) return null;
 
-            char[] chars = null;
-            byte[] bytes = null;
+            byte[] pooledBytes = null;
             try
             {
-                // This part would be more efficient in .NET Core as it could get bytes directly from the span
-                // without first copying the span to a char array.
-                chars = ArrayPool<char>.Shared.Rent(source.Length);
-                source.CopyTo(chars);
-                var maxByteCount = Encoding.UTF8.GetByteCount(chars, 0, source.Length);
-                bytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                var encodedByteCount = Encoding.UTF8.GetBytes(chars, 0, source.Length, bytes, 0);
-
-                if (Utf8Parser.TryParse(bytes.AsSpan(0, encodedByteCount), out DateTime value, out int bytesConsumed))
+                fixed (char* cp = source)
                 {
-                    return value;
-                }
+                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
+                    if (maxByteCount > s_maxStack)
+                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                return null;
+                    fixed (byte* bp = bytes)
+                    {
+                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTime value, out _, format))
+                        {
+                            return value;
+                        }
+                    }
+                }
             }
             finally
             {
-                if (chars != null)
-                    ArrayPool<char>.Shared.Return(chars);
-                if (bytes != null)
-                    ArrayPool<byte>.Shared.Return(bytes);
+                if (pooledBytes != null)
+                    ArrayPool<byte>.Shared.Return(pooledBytes);
             }
+
+            return null;
+        }
+#else
+
+        static readonly Lazy<Dictionary<char, char[]>> s_formatChars = new Lazy<Dictionary<char, char[]>>(() =>
+        {
+            var chars = new[] { 'd', 'f', 'g', 'm', 'o', 'r', 's', 't', 'u', 'y' };
+            var dict = new Dictionary<char, char[]>(chars.Length * 2);
+            foreach (var c in chars)
+            {
+                dict.Add(c, new[] { c });
+                dict.Add(char.ToUpperInvariant(c), new[] { char.ToUpperInvariant(c) });
+            }
+            return dict;
+        });
+
+        /// <summary>
+        ///     Parses a <see cref="DateTime"/> from a char span.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> source, char format = '\0')
+        {
+            // Utf8Parser only allows the invariant culture, so we use it here to match behavior
+            if (format == '\0')
+            {
+                if (DateTime.TryParse(source, CultureInfo.InvariantCulture, 
+                    DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            else
+            {
+                var formatChars = s_formatChars.Value.TryGetValue(format, out var chars)
+                    ? chars.AsSpan() : format.ToString().AsSpan();
+                if (DateTime.TryParseExact(source, formatChars, CultureInfo.InvariantCulture, 
+                    DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            return null;
         }
 
         /// <summary>
-        ///     Parses a DateTimeOffset from a char span.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
+        ///     Parses a <see cref="DateTime"/> from a char span.
         /// </summary>
-        /// <param name="source"></param>
-        public static DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source)
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> source, ReadOnlySpan<char> format)
+        {
+            if (DateTime.TryParseExact(source, format, CultureInfo.InvariantCulture, 
+                DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+            {
+                return parsed;
+            }
+            return null;
+        }
+#endif
+
+#if NETSTANDARD2_0
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a char span. Limited format support: Only supports the G and R DateTimeOffset formats.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing. Only the following formats are supported: G, R.</param>
+        public static unsafe DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char format = '\0')
         {
             if (source.IsEmpty) return null;
 
-            char[] chars = null;
-            byte[] bytes = null;
+            byte[] pooledBytes = null;
             try
             {
-                // This part would be more efficient in .NET Core as it could get bytes directly from the span
-                // without first copying the span to a char array.
-                chars = ArrayPool<char>.Shared.Rent(source.Length);
-                source.CopyTo(chars);
-                var maxByteCount = Encoding.UTF8.GetByteCount(chars, 0, source.Length);
-                bytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                var encodedByteCount = Encoding.UTF8.GetBytes(chars, 0, source.Length, bytes, 0);
-
-                if (Utf8Parser.TryParse(bytes.AsSpan(0, encodedByteCount), out DateTimeOffset value, out int bytesConsumed))
+                fixed (char* cp = source)
                 {
-                    return value;
-                }
+                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
+                    if (maxByteCount > s_maxStack)
+                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                return null;
+                    fixed (byte* bp = bytes)
+                    {
+                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTimeOffset value, out _, format))
+                        {
+                            return value;
+                        }
+                    }
+                }
             }
             finally
             {
-                if (chars != null)
-                    ArrayPool<char>.Shared.Return(chars);
-                if (bytes != null)
-                    ArrayPool<byte>.Shared.Return(bytes);
+                if (pooledBytes != null)
+                    ArrayPool<byte>.Shared.Return(pooledBytes);
             }
+
+            return null;
+        }
+#else
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a char span.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char format = '\0')
+        {
+            // Utf8Parser only allows the invariant culture, so we use it here to match behavior
+            if (format == '\0')
+            {
+                if (DateTimeOffset.TryParse(source, CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            else
+            {
+                var formatChars = s_formatChars.Value.TryGetValue(format, out var chars)
+                    ? chars.AsSpan() : format.ToString().AsSpan();
+                if (DateTimeOffset.TryParseExact(source, formatChars, CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            return null;
         }
 
-        */
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a char span.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, ReadOnlySpan<char> format)
+        {
+            if (DateTimeOffset.TryParseExact(source, format, CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
+            {
+                return parsed;
+            }
+            return null;
+        }
+#endif
 
         /// <summary>
         ///     Parses a boolean from a char span.
-        ///     Useful when parsing integers from a substring, as span slicing avoids creating new strings just to parse them.
         /// </summary>
 #if NETSTANDARD2_0
         public static unsafe bool? ToBoolean(this ReadOnlySpan<char> source)
