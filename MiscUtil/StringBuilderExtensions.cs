@@ -163,7 +163,7 @@ namespace MiscUtil
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
-            
+
             for (int i = 0; i < sb.Length; i++)
             {
                 sb[i] = char.ToLowerInvariant(sb[i]);
@@ -183,7 +183,7 @@ namespace MiscUtil
 
             int startIndex = sb.Length;
             sb.Length += chars.Length;
-            for (int i = 0; i < chars.Length; i++)
+            for (int i = 0, len = chars.Length; i < len; i++)
             {
                 sb[startIndex + i] = chars[i];
             }

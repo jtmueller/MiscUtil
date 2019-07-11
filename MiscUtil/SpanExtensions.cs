@@ -99,7 +99,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
@@ -148,7 +148,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
@@ -207,7 +207,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
@@ -255,7 +255,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
@@ -352,7 +352,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
@@ -435,7 +435,7 @@ namespace MiscUtil
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
                 if (maxByteCount > s_maxStack)
                     pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
 
                 int encodedByteCount;
                 fixed (char* cp = source)
