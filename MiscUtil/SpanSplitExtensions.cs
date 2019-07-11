@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
@@ -8,93 +9,6 @@ namespace MiscUtil
 {
     public static class SpanSplitExtensions
     {
-        public ref struct Enumerable1<T> where T : IEquatable<T>
-        {
-            public Enumerable1(ReadOnlySpan<T> span, T separator, SpanSplitOptions options)
-            {
-                Span = span;
-                Separator = separator;
-                Options = options;
-            }
-
-            ReadOnlySpan<T> Span { get; }
-            T Separator { get; }
-            SpanSplitOptions Options { get; }
-
-            public Enumerator1<T> GetEnumerator() => new Enumerator1<T>(Span, Separator, Options);
-        }
-
-        public ref struct Enumerable2<T> where T : IEquatable<T>
-        {
-            public Enumerable2(ReadOnlySpan<T> span, T separator1, T separator2, SpanSplitOptions options)
-            {
-                Span = span;
-                Separator1 = separator1;
-                Separator2 = separator2;
-                Options = options;
-            }
-
-            ReadOnlySpan<T> Span { get; }
-            T Separator1 { get; }
-            T Separator2 { get; }
-            SpanSplitOptions Options { get; }
-
-            public Enumerator2<T> GetEnumerator() => new Enumerator2<T>(Span, Separator1, Separator2, Options);
-        }
-
-        public ref struct Enumerable3<T> where T : IEquatable<T>
-        {
-            public Enumerable3(ReadOnlySpan<T> span, T separator1, T separator2, T separator3, SpanSplitOptions options)
-            {
-                Span = span;
-                Separator1 = separator1;
-                Separator2 = separator2;
-                Separator3 = separator3;
-                Options = options;
-            }
-
-            ReadOnlySpan<T> Span { get; }
-            T Separator1 { get; }
-            T Separator2 { get; }
-            T Separator3 { get; }
-            SpanSplitOptions Options { get; }
-
-            public Enumerator3<T> GetEnumerator() =>
-                new Enumerator3<T>(Span, Separator1, Separator2, Separator3, Options);
-        }
-
-        public ref struct EnumerableN<T> where T : IEquatable<T>
-        {
-            public EnumerableN(ReadOnlySpan<T> span, ReadOnlySpan<T> separators, SpanSplitOptions options)
-            {
-                Span = span;
-                Separators = separators;
-                Options = options;
-            }
-
-            ReadOnlySpan<T> Span { get; }
-            ReadOnlySpan<T> Separators { get; }
-            SpanSplitOptions Options { get; }
-
-            public EnumeratorN<T> GetEnumerator() => new EnumeratorN<T>(Span, Separators, Options);
-        }
-
-        public ref struct EnumerableAll<T> where T : IEquatable<T>
-        {
-            public EnumerableAll(ReadOnlySpan<T> span, ReadOnlySpan<T> separator, SpanSplitOptions options)
-            {
-                Span = span;
-                Separator = separator;
-                Options = options;
-            }
-
-            ReadOnlySpan<T> Span { get; }
-            ReadOnlySpan<T> Separator { get; }
-            SpanSplitOptions Options { get; }
-
-            public EnumeratorWord<T> GetEnumerator() => new EnumeratorWord<T>(Span, Separator, Options);
-        }
-
         public ref struct Enumerator1<T> where T : IEquatable<T>
         {
             public Enumerator1(ReadOnlySpan<T> span, T separator, SpanSplitOptions options)
@@ -108,12 +22,12 @@ namespace MiscUtil
                     TrailingEmptyItem = true;
             }
 
-            ReadOnlySpan<T> Span { get; set; }
-            T Separator { get; }
-            SpanSplitOptions Options { get; }
-            int SeparatorLength => 1;
+            private ReadOnlySpan<T> Span { get; set; }
+            private T Separator { get; }
+            private SpanSplitOptions Options { get; }
+            private int SeparatorLength => 1;
 
-            ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
+            private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
             bool TrailingEmptyItem
             {
@@ -121,6 +35,15 @@ namespace MiscUtil
                 set => Span = value ? TrailingEmptyItemSentinel : default;
             }
 
+            /// <summary>
+            /// Implement IEnumerable.GetEnumerator() to return 'this' as the IEnumerator  
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)] // Only here to make foreach work
+            public Enumerator1<T> GetEnumerator() => this;
+
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public bool MoveNext()
             {
                 if (TrailingEmptyItem)
@@ -156,6 +79,9 @@ namespace MiscUtil
                 return true;
             }
 
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public ReadOnlySpan<T> Current { get; private set; }
         }
 
@@ -173,20 +99,29 @@ namespace MiscUtil
                     TrailingEmptyItem = true;
             }
 
-            ReadOnlySpan<T> Span { get; set; }
-            T Separator1 { get; }
-            T Separator2 { get; }
-            SpanSplitOptions Options { get; }
-            int SeparatorLength => 1;
+            private ReadOnlySpan<T> Span { get; set; }
+            private T Separator1 { get; }
+            private T Separator2 { get; }
+            private SpanSplitOptions Options { get; }
+            private int SeparatorLength => 1;
 
-            ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
+            private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
-            bool TrailingEmptyItem
+            private bool TrailingEmptyItem
             {
                 get => Span == TrailingEmptyItemSentinel;
                 set => Span = value ? TrailingEmptyItemSentinel : default;
             }
 
+            /// <summary>
+            /// Implement IEnumerable.GetEnumerator() to return 'this' as the IEnumerator  
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)] // Only here to make foreach work
+            public Enumerator2<T> GetEnumerator() => this;
+
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public bool MoveNext()
             {
                 if (TrailingEmptyItem)
@@ -222,6 +157,9 @@ namespace MiscUtil
                 return true;
             }
 
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public ReadOnlySpan<T> Current { get; private set; }
         }
 
@@ -240,21 +178,30 @@ namespace MiscUtil
                     TrailingEmptyItem = true;
             }
 
-            ReadOnlySpan<T> Span { get; set; }
-            T Separator1 { get; }
-            T Separator2 { get; }
-            T Separator3 { get; }
-            SpanSplitOptions Options { get; }
-            int SeparatorLength => 1;
+            private ReadOnlySpan<T> Span { get; set; }
+            private T Separator1 { get; }
+            private T Separator2 { get; }
+            private T Separator3 { get; }
+            private SpanSplitOptions Options { get; }
+            private int SeparatorLength => 1;
 
-            ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
+            private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
-            bool TrailingEmptyItem
+            private bool TrailingEmptyItem
             {
                 get => Span == TrailingEmptyItemSentinel;
                 set => Span = value ? TrailingEmptyItemSentinel : default;
             }
 
+            /// <summary>
+            /// Implement IEnumerable.GetEnumerator() to return 'this' as the IEnumerator  
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)] // Only here to make foreach work
+            public Enumerator3<T> GetEnumerator() => this;
+
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public bool MoveNext()
             {
                 if (TrailingEmptyItem)
@@ -290,6 +237,9 @@ namespace MiscUtil
                 return true;
             }
 
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public ReadOnlySpan<T> Current { get; private set; }
         }
 
@@ -306,19 +256,28 @@ namespace MiscUtil
                     TrailingEmptyItem = true;
             }
 
-            ReadOnlySpan<T> Span { get; set; }
-            ReadOnlySpan<T> Separators { get; }
-            SpanSplitOptions Options { get; }
-            int SeparatorLength => 1;
+            private ReadOnlySpan<T> Span { get; set; }
+            private ReadOnlySpan<T> Separators { get; }
+            private SpanSplitOptions Options { get; }
+            private int SeparatorLength => 1;
 
-            ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
+            private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
-            bool TrailingEmptyItem
+            private bool TrailingEmptyItem
             {
                 get => Span == TrailingEmptyItemSentinel;
                 set => Span = value ? TrailingEmptyItemSentinel : default;
             }
 
+            /// <summary>
+            /// Implement IEnumerable.GetEnumerator() to return 'this' as the IEnumerator  
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)] // Only here to make foreach work
+            public EnumeratorN<T> GetEnumerator() => this;
+
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public bool MoveNext()
             {
                 if (TrailingEmptyItem)
@@ -354,12 +313,15 @@ namespace MiscUtil
                 return true;
             }
 
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public ReadOnlySpan<T> Current { get; private set; }
         }
 
-        public ref struct EnumeratorWord<T> where T : IEquatable<T>
+        public ref struct EnumeratorAll<T> where T : IEquatable<T>
         {
-            public EnumeratorWord(ReadOnlySpan<T> span, ReadOnlySpan<T> separator, SpanSplitOptions options)
+            public EnumeratorAll(ReadOnlySpan<T> span, ReadOnlySpan<T> separator, SpanSplitOptions options)
             {
                 Span = span;
                 Separator = separator;
@@ -370,19 +332,28 @@ namespace MiscUtil
                     TrailingEmptyItem = true;
             }
 
-            ReadOnlySpan<T> Span { get; set; }
-            ReadOnlySpan<T> Separator { get; }
-            SpanSplitOptions Options { get; }
-            int SeparatorLength => Separator.Length;
+            private ReadOnlySpan<T> Span { get; set; }
+            private ReadOnlySpan<T> Separator { get; }
+            private SpanSplitOptions Options { get; }
+            private int SeparatorLength => Separator.Length;
 
-            ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
+            private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
-            bool TrailingEmptyItem
+            private bool TrailingEmptyItem
             {
                 get => Span == TrailingEmptyItemSentinel;
                 set => Span = value ? TrailingEmptyItemSentinel : default;
             }
 
+            /// <summary>
+            /// Implement IEnumerable.GetEnumerator() to return 'this' as the IEnumerator  
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)] // Only here to make foreach work
+            public EnumeratorAll<T> GetEnumerator() => this;
+
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public bool MoveNext()
             {
                 if (TrailingEmptyItem)
@@ -418,20 +389,44 @@ namespace MiscUtil
                 return true;
             }
 
+            /// <summary>
+            /// Implements the IEnumerator pattern.
+            /// </summary>
             public ReadOnlySpan<T> Current { get; private set; }
         }
 
+        /// <summary>
+        /// Splits on any occurrence of the <paramref name="separator"/> value.
+        /// </summary>
+        /// <param name="span">The span to split.</param>
+        /// <param name="splitValues">The value to split on.</param>
+        /// <param name="options">The <see cref="SpanSplitOptions"/> for this call.</param>
         [Pure]
-        public static Enumerable1<T> Split<T>(this ReadOnlySpan<T> span, T separator, SpanSplitOptions options = SpanSplitOptions.None)
-            where T : IEquatable<T> => new Enumerable1<T>(span, separator, options);
+        public static Enumerator1<T> Split<T>(this ReadOnlySpan<T> span, T separator, SpanSplitOptions options = SpanSplitOptions.None)
+            where T : IEquatable<T> => new Enumerator1<T>(span, separator, options);
 
+        /// <summary>
+        /// Splits on any of the given values..
+        /// </summary>
+        /// <param name="span">The span to split.</param>
+        /// <param name="separator1"/>
+        /// <param name="separator2"/>
+        /// <param name="options">The <see cref="SpanSplitOptions"/> for this call.</param>
         [Pure]
-        public static Enumerable2<T> Split<T>(this ReadOnlySpan<T> span, T separator1, T separator2, SpanSplitOptions options = SpanSplitOptions.None)
-            where T : IEquatable<T> => new Enumerable2<T>(span, separator1, separator2, options);
+        public static Enumerator2<T> Split<T>(this ReadOnlySpan<T> span, T separator1, T separator2, SpanSplitOptions options = SpanSplitOptions.None)
+            where T : IEquatable<T> => new Enumerator2<T>(span, separator1, separator2, options);
 
+        /// <summary>
+        /// Splits on any of the given values..
+        /// </summary>
+        /// <param name="span">The span to split.</param>
+        /// <param name="separator1"/>
+        /// <param name="separator2"/>
+        /// <param name="separator3"/>
+        /// <param name="options">The <see cref="SpanSplitOptions"/> for this call.</param>
         [Pure]
-        public static Enumerable3<T> Split<T>(this ReadOnlySpan<T> span, T separator1, T separator2, T separator3, SpanSplitOptions options = SpanSplitOptions.None)
-            where T : IEquatable<T> => new Enumerable3<T>(span, separator1, separator2, separator3, options);
+        public static Enumerator3<T> Split<T>(this ReadOnlySpan<T> span, T separator1, T separator2, T separator3, SpanSplitOptions options = SpanSplitOptions.None)
+            where T : IEquatable<T> => new Enumerator3<T>(span, separator1, separator2, separator3, options);
 
         /// <summary>
         /// Splits on any of the <paramref name="splitValues"/> values given.
@@ -440,8 +435,8 @@ namespace MiscUtil
         /// <param name="splitValues">A span containing values, any one of which will trigger a split.</param>
         /// <param name="options">The <see cref="SpanSplitOptions"/> for this call.</param>
         [Pure]
-        public static EnumerableN<T> Split<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> splitValues, SpanSplitOptions options = SpanSplitOptions.None)
-            where T : IEquatable<T> => new EnumerableN<T>(span, splitValues, options);
+        public static EnumeratorN<T> Split<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> splitValues, SpanSplitOptions options = SpanSplitOptions.None)
+            where T : IEquatable<T> => new EnumeratorN<T>(span, splitValues, options);
 
         /// <summary>
         /// Splits on any occurrence of all of the values in <paramref name="splitAll"/>, in sequence.
@@ -450,8 +445,8 @@ namespace MiscUtil
         /// <param name="splitValues">A span containing values, any one of which will trigger a split.</param>
         /// <param name="options">The <see cref="SpanSplitOptions"/> for this call.</param>
         [Pure]
-        public static EnumerableAll<T> SplitAll<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> splitAll, SpanSplitOptions options = SpanSplitOptions.None)
-            where T : IEquatable<T> => new EnumerableAll<T>(span, splitAll, options);
+        public static EnumeratorAll<T> SplitAll<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> splitAll, SpanSplitOptions options = SpanSplitOptions.None)
+            where T : IEquatable<T> => new EnumeratorAll<T>(span, splitAll, options);
     }
 
     /// <summary>

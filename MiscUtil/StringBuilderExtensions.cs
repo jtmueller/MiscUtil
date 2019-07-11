@@ -163,7 +163,7 @@ namespace MiscUtil
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
-
+            
             for (int i = 0; i < sb.Length; i++)
             {
                 sb[i] = char.ToLowerInvariant(sb[i]);
@@ -174,11 +174,8 @@ namespace MiscUtil
 
 #if NETSTANDARD2_0
         /// <summary>
-        /// Appends the characters in the specified <see cref="ReadOnlySpan{char}"/> to this instance.
+        ///     Appends the characters in the specified <see cref="ReadOnlySpan{char}"/> to this instance.
         /// </summary>
-        /// <param name="sb"></param>
-        /// <param name="chars"></param>
-        /// <returns></returns>
         public static StringBuilder Append(this StringBuilder sb, ReadOnlySpan<char> chars)
         {
             if (sb is null)
@@ -194,5 +191,15 @@ namespace MiscUtil
             return sb;
         }
 #endif
+
+        /// <summary>
+        ///     Appends the characters in the specified <see cref="ReadOnlyMemory{char}"/> to this instance.
+        /// </summary>
+        /// <remarks>
+        ///     This overload prevents accidentally sending a ReadOnlyMemory to the Object overload of Append,
+        ///     which would call ToString and appear to work, but at greatly reduced efficiency.
+        /// </remarks>
+        public static StringBuilder Append(this StringBuilder sb, ReadOnlyMemory<char> chars)
+            => sb.Append(chars.Span);
     }
 }
