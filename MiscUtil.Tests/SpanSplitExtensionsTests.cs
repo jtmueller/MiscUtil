@@ -24,5 +24,24 @@ namespace MiscUtil.Tests
 
             Assert.Equal(str.Split(separator), parts);
         }
+
+        [Theory]
+        [InlineData("", 'a')]
+        [InlineData("a", 'a')]
+        [InlineData("aaaa", 'a')]
+        [InlineData("abababab", 'a')]
+        [InlineData("babababa", 'a')]
+        [InlineData("aaaaab", 'a')]
+        [InlineData("baaaaa", 'a')]
+        [InlineData("zzzzzazzzzazzzzazzz", 'z')]
+        public void SplitOneCharRemoveEmpty(string str, char separator)
+        {
+            var parts = new List<string>();
+
+            foreach (var part in str.AsSpan().Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                parts.Add(part.ToString());
+
+            Assert.Equal(str.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries), parts);
+        }
     }
 }
