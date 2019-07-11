@@ -29,7 +29,7 @@ namespace MiscUtil
 
             private ReadOnlySpan<T> TrailingEmptyItemSentinel => Unsafe.As<T[]>(nameof(TrailingEmptyItemSentinel)).AsSpan();
 
-            bool TrailingEmptyItem
+            private bool TrailingEmptyItem
             {
                 get => Span == TrailingEmptyItemSentinel;
                 set => Span = value ? TrailingEmptyItemSentinel : default;
