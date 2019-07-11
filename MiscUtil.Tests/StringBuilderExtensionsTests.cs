@@ -20,6 +20,32 @@ namespace MiscUtil.Tests
             Assert.Equal(str.TrimEnd(chars), new StringBuilder(str).TrimEnd(chars).ToString());
         }
 
+        [Theory]
+        [InlineData(",abcdefg", new char[] { ',' })]
+        [InlineData(",,,abcdefg", new char[] { ',' })]
+        [InlineData("|abcdefg", new char[] { ',', '|' })]
+        [InlineData(",|abcdefg", new char[] { ',', '|' })]
+        [InlineData(" abcdefg", null)]
+        [InlineData("     abcdefg", new char[0])]
+        [InlineData(" \t\n abcdefg", null)]
+        public void TrimStart(string str, char[] chars)
+        {
+            Assert.Equal(str.TrimStart(chars), new StringBuilder(str).TrimStart(chars).ToString());
+        }
+
+        [Theory]
+        [InlineData(",abcdefg,", new char[] { ',' })]
+        [InlineData(",,,abcdefg,,,", new char[] { ',' })]
+        [InlineData("|abcdefg|", new char[] { ',', '|' })]
+        [InlineData(",|abcdefg|,", new char[] { ',', '|' })]
+        [InlineData(" abcdefg ", null)]
+        [InlineData("     abcdefg     ", new char[0])]
+        [InlineData(" \t\n abcdefg \t\n ", null)]
+        public void Trim(string str, char[] chars)
+        {
+            Assert.Equal(str.Trim(chars), new StringBuilder(str).Trim(chars).ToString());
+        }
+
         [Fact]
         public void AppendSpan()
         {

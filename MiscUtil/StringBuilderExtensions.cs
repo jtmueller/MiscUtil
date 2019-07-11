@@ -7,7 +7,7 @@ namespace MiscUtil
     public static class StringBuilderExtensions
     {
         /// <summary>
-        ///     Removes all trailing occurrences of a set of characters specified in an array from the current <see cref="StringBuilder"/> object.
+        ///     Removes all trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
         ///     If no characters are specified, removes trailing whitespace.
         /// </summary>
         /// <param name="sb">The <see cref="StringBuilder"/></param>
@@ -51,6 +51,62 @@ namespace MiscUtil
 
             return sb;
         }
+
+        /// <summary>
+        ///     Removes all leading occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
+        ///     If no characters are specified, removes trailing whitespace.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder TrimStart(this StringBuilder sb, params char[] trimChars)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+
+            if (sb.Length == 0)
+                return sb;
+
+            int removeCount = 0;
+
+            if (trimChars is null || trimChars.Length == 0)
+            {
+                // trim whitespace
+                for (int i = 0; i < sb.Length; i++)
+                {
+                    if (char.IsWhiteSpace(sb[i]))
+                        removeCount++;
+                    else
+                        break;
+                }
+            }
+            else
+            {
+                // trim specific chars
+                for (int i = 0; i < sb.Length; i++)
+                {
+                    if (Array.IndexOf(trimChars, sb[i]) > -1)
+                        removeCount++;
+                    else
+                        break;
+                }
+            }
+
+            if (removeCount != 0)
+                sb.Remove(0, removeCount);
+
+            return sb;
+        }
+
+        /// <summary>
+        ///     Removes all leading and trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
+        ///     If no characters are specified, removes whitespace.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder Trim(this StringBuilder sb, params char[] trimChars)
+            => sb.TrimEnd(trimChars).TrimStart(trimChars);
 
         /// <summary>
         /// Converts all the characters in the <see cref="StringBuilder"/> to upper-case, using the given culture.
