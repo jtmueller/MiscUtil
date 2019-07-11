@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiscUtil", "MiscUtil\MiscUt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiscUtil.Tests", "MiscUtil.Tests\MiscUtil.Tests.csproj", "{51932807-4D2B-458F-BBF3-B0D604A3A972}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscUtil.Benchmarks", "MiscUtil.Benchmarks\MiscUtil.Benchmarks.csproj", "{789FCD74-48B2-4B50-8B39-96B6D1E032FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiscUtil.Benchmarks", "MiscUtil.Benchmarks\MiscUtil.Benchmarks.csproj", "{789FCD74-48B2-4B50-8B39-96B6D1E032FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8C03236A-DB36-4373-A41F-ECDAB194847C}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
