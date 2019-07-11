@@ -145,24 +145,24 @@ namespace MiscUtil
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out decimal value, out int bytesConsumed))
-                        {
-                            // If we didn't consume all the bytes, it should fail to parse.
-                            if (bytesConsumed < encodedByteCount)
-                                return null;
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out decimal value, out int bytesConsumed))
+                {
+                    // If we didn't consume all the bytes, it should fail to parse.
+                    if (bytesConsumed < encodedByteCount)
+                        return null;
+                    return value;
                 }
             }
             finally
@@ -204,21 +204,21 @@ namespace MiscUtil
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out Guid value, out _, formatChar))
-                        {
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out Guid value, out _, formatChar))
+                {
+                    return value;
                 }
             }
             finally
@@ -243,8 +243,8 @@ namespace MiscUtil
         ///     Parses a <see cref="DateTime"/> from a char span. Limited format support: Only supports the G, O, and R DateTime formats.
         /// </summary>
         /// <param name="source">The span to parse.</param>
-        /// <param name="format">The optional format specifier to use for parsing. Only the following formats are supported: G, O, R.</param>
-        public static unsafe DateTime? ToDateTime(this ReadOnlySpan<char> source, char format = '\0')
+        /// <param name="formatChar">The optional format specifier to use for parsing. Only the following formats are supported: G, O, R.</param>
+        public static unsafe DateTime? ToDateTime(this ReadOnlySpan<char> source, char formatChar = '\0')
         {
             source = source.Trim();
             if (source.IsEmpty) return null;
@@ -252,21 +252,21 @@ namespace MiscUtil
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTime value, out _, format))
-                        {
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTime value, out _, formatChar))
+                {
+                    return value;
                 }
             }
             finally
@@ -296,10 +296,10 @@ namespace MiscUtil
         /// </summary>
         /// <param name="source">The span to parse.</param>
         /// <param name="format">The optional format specifier to use for parsing.</param>
-        public static DateTime? ToDateTime(this ReadOnlySpan<char> source, char format = '\0')
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> source, char formatChar = '\0')
         {
             // Utf8Parser only allows the invariant culture, so we use it here to match behavior
-            if (format == '\0')
+            if (formatChar == '\0')
             {
                 if (DateTime.TryParse(source, CultureInfo.InvariantCulture, 
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
@@ -309,8 +309,8 @@ namespace MiscUtil
             }
             else
             {
-                var formatChars = s_formatChars.Value.TryGetValue(format, out var chars)
-                    ? chars.AsSpan() : format.ToString().AsSpan();
+                var formatChars = s_formatChars.Value.TryGetValue(formatChar, out var chars)
+                    ? chars.AsSpan() : formatChar.ToString().AsSpan();
                 if (DateTime.TryParseExact(source, formatChars, CultureInfo.InvariantCulture, 
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
                 {
@@ -342,28 +342,28 @@ namespace MiscUtil
         /// </summary>
         /// <param name="source">The span to parse.</param>
         /// <param name="format">The optional format specifier to use for parsing. Only the following formats are supported: G, R.</param>
-        public static unsafe DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char format = '\0')
+        public static unsafe DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char formatChar = '\0')
         {
             if (source.IsEmpty) return null;
 
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTimeOffset value, out _, format))
-                        {
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out DateTimeOffset value, out _, formatChar))
+                {
+                    return value;
                 }
             }
             finally
@@ -380,10 +380,10 @@ namespace MiscUtil
         /// </summary>
         /// <param name="source">The span to parse.</param>
         /// <param name="format">The optional format specifier to use for parsing.</param>
-        public static DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char format = '\0')
+        public static DateTimeOffset? ToDateTimeOffset(this ReadOnlySpan<char> source, char formatChar = '\0')
         {
             // Utf8Parser only allows the invariant culture, so we use it here to match behavior
-            if (format == '\0')
+            if (formatChar == '\0')
             {
                 if (DateTimeOffset.TryParse(source, CultureInfo.InvariantCulture,
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
@@ -393,8 +393,8 @@ namespace MiscUtil
             }
             else
             {
-                var formatChars = s_formatChars.Value.TryGetValue(format, out var chars)
-                    ? chars.AsSpan() : format.ToString().AsSpan();
+                var formatChars = s_formatChars.Value.TryGetValue(formatChar, out var chars)
+                    ? chars.AsSpan() : formatChar.ToString().AsSpan();
                 if (DateTimeOffset.TryParseExact(source, formatChars, CultureInfo.InvariantCulture,
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
                 {
@@ -432,24 +432,24 @@ namespace MiscUtil
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out bool value, out int bytesConsumed))
-                        {
-                            // If we didn't consume all the bytes, it should fail to parse.
-                            if (bytesConsumed < encodedByteCount)
-                                return null;
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out bool value, out int bytesConsumed))
+                {
+                    // If we didn't consume all the bytes, it should fail to parse.
+                    if (bytesConsumed < encodedByteCount)
+                        return null;
+                    return value;
                 }
             }
             finally

@@ -29,6 +29,7 @@ namespace MiscUtil.Tests
         [InlineData("-17923568.1", -17923568.1)]
         [InlineData("bogus", null)]
         [InlineData("12345.67abc", null)]
+        [InlineData("abc12345.67", null)]
         [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
             "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
             "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
