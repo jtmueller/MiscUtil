@@ -96,24 +96,24 @@ namespace MiscUtil
             byte[] pooledBytes = null;
             try
             {
-                fixed (char* cp = source)
-                {
-                    int maxByteCount = Encoding.UTF8.GetByteCount(cp, source.Length);
-                    if (maxByteCount > s_maxStack)
-                        pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
-                    Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = maxByteCount > s_maxStack ? pooledBytes : stackalloc byte[maxByteCount];
 
-                    fixed (byte* bp = bytes)
-                    {
-                        int encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
-                        if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out double value, out int bytesConsumed))
-                        {
-                            // If we didn't consume all the bytes, it should fail to parse.
-                            if (bytesConsumed < encodedByteCount)
-                                return null;
-                            return value;
-                        }
-                    }
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out double value, out int bytesConsumed))
+                {
+                    // If we didn't consume all the bytes, it should fail to parse.
+                    if (bytesConsumed < encodedByteCount)
+                        return null;
+                    return value;
                 }
             }
             finally
