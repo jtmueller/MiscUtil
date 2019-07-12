@@ -8,10 +8,10 @@ namespace MiscUtil.Tests
     public class StringBuilderExtensionsTests
     {
         [Theory]
-        [InlineData("abcdefg,", new char[] { ',' })]
-        [InlineData("abcdefg,,,", new char[] { ',' })]
-        [InlineData("abcdefg|", new char[] { ',', '|' })]
-        [InlineData("abcdefg,|", new char[] { ',', '|' })]
+        [InlineData("abcdefg,", new[] { ',' })]
+        [InlineData("abcdefg,,,", new[] { ',' })]
+        [InlineData("abcdefg|", new[] { ',', '|' })]
+        [InlineData("abcdefg,|", new[] { ',', '|' })]
         [InlineData("abcdefg ", null)]
         [InlineData("abcdefg     ", new char[0])]
         [InlineData("abcdefg \t\n ", null)]
@@ -21,10 +21,10 @@ namespace MiscUtil.Tests
         }
 
         [Theory]
-        [InlineData(",abcdefg", new char[] { ',' })]
-        [InlineData(",,,abcdefg", new char[] { ',' })]
-        [InlineData("|abcdefg", new char[] { ',', '|' })]
-        [InlineData(",|abcdefg", new char[] { ',', '|' })]
+        [InlineData(",abcdefg", new[] { ',' })]
+        [InlineData(",,,abcdefg", new[] { ',' })]
+        [InlineData("|abcdefg", new[] { ',', '|' })]
+        [InlineData(",|abcdefg", new[] { ',', '|' })]
         [InlineData(" abcdefg", null)]
         [InlineData("     abcdefg", new char[0])]
         [InlineData(" \t\n abcdefg", null)]
@@ -34,10 +34,10 @@ namespace MiscUtil.Tests
         }
 
         [Theory]
-        [InlineData(",abcdefg,", new char[] { ',' })]
-        [InlineData(",,,abcdefg,,,", new char[] { ',' })]
-        [InlineData("|abcdefg|", new char[] { ',', '|' })]
-        [InlineData(",|abcdefg|,", new char[] { ',', '|' })]
+        [InlineData(",abcdefg,", new[] { ',' })]
+        [InlineData(",,,abcdefg,,,", new[] { ',' })]
+        [InlineData("|abcdefg|", new[] { ',', '|' })]
+        [InlineData(",|abcdefg|,", new[] { ',', '|' })]
         [InlineData(" abcdefg ", null)]
         [InlineData("     abcdefg     ", new char[0])]
         [InlineData(" \t\n abcdefg \t\n ", null)]
@@ -57,6 +57,16 @@ namespace MiscUtil.Tests
             var partial = alphabet.AsSpan(10);
             sb.Append(partial);
             Assert.Equal(alphabet + alphabet.Substring(10), sb.ToString());
+        }
+
+        [Fact]
+        public void CopyTo()
+        {
+            var sb = new StringBuilder("abcdefghijklmnopqrstuvwxyz");
+            Span<char> dest = stackalloc char[sb.Length];
+            sb.CopyTo(0, dest, sb.Length);
+
+            Assert.Equal(sb.ToString(), dest.ToString());
         }
 
         [Theory]

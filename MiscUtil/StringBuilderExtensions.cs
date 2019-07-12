@@ -163,12 +163,11 @@ namespace MiscUtil
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
-
+            
             for (int i = 0; i < sb.Length; i++)
             {
                 sb[i] = char.ToLowerInvariant(sb[i]);
             }
-
             return sb;
         }
 
@@ -180,6 +179,8 @@ namespace MiscUtil
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
+            if (chars.IsEmpty)
+                return sb;
 
             int startIndex = sb.Length;
             sb.Length += chars.Length;
@@ -189,6 +190,30 @@ namespace MiscUtil
             }
 
             return sb;
+        }
+
+        /// <summary>
+        /// Copies the characters from a specified segment of this instance to the destination span.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="sourceIndex">The index within the StringBuilder at which to start counting.</param>
+        /// <param name="destination">The span to copy characters into.</param>
+        /// <param name="count">The number of characters to copy.</param>
+        public static void CopyTo(this StringBuilder sb, int sourceIndex, Span<char> destination, int count)
+        {
+            if (sb is null)
+                throw new ArgumentNullException(nameof(sb));
+            if ((uint)sourceIndex >= (uint)sb.Length)
+                throw new ArgumentOutOfRangeException(nameof(sourceIndex));
+            if (sourceIndex + count > sb.Length)
+                throw new ArgumentOutOfRangeException(nameof(count));
+            if (count > destination.Length)
+                throw new ArgumentException("Destination too small.");
+            
+            for (int i = 0; i < count; i++)
+            {
+                destination[i] = sb[sourceIndex + i];
+            }
         }
 #endif
 
