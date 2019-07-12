@@ -93,7 +93,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -142,7 +142,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -201,7 +201,7 @@ namespace MiscUtil
                 _ => '\0'
             };
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -249,7 +249,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -346,7 +346,7 @@ namespace MiscUtil
         {
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -429,7 +429,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
