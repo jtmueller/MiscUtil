@@ -53,7 +53,7 @@ namespace MiscUtil
                     return true;
                 }
 
-                retry:
+            retry:
                 if (Span.IsEmpty)
                 {
                     Span = Current = default;
@@ -131,7 +131,7 @@ namespace MiscUtil
                     return true;
                 }
 
-                retry:
+            retry:
                 if (Span.IsEmpty)
                 {
                     Span = Current = default;
@@ -211,7 +211,7 @@ namespace MiscUtil
                     return true;
                 }
 
-                retry:
+            retry:
                 if (Span.IsEmpty)
                 {
                     Span = Current = default;
@@ -287,7 +287,7 @@ namespace MiscUtil
                     return true;
                 }
 
-                retry:
+            retry:
                 if (Span.IsEmpty)
                 {
                     Span = Current = default;
