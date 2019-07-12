@@ -406,7 +406,7 @@ namespace MiscUtil
             where T : IEquatable<T> => new Enumerator1<T>(span, separator, options);
 
         /// <summary>
-        /// Splits on any of the given values..
+        /// Splits on any of the given values.
         /// </summary>
         /// <param name="span">The span to split.</param>
         /// <param name="separator1"/>
@@ -417,7 +417,7 @@ namespace MiscUtil
             where T : IEquatable<T> => new Enumerator2<T>(span, separator1, separator2, options);
 
         /// <summary>
-        /// Splits on any of the given values..
+        /// Splits on any of the given values.
         /// </summary>
         /// <param name="span">The span to split.</param>
         /// <param name="separator1"/>
