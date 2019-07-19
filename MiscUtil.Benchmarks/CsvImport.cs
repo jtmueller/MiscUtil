@@ -49,7 +49,7 @@ namespace MiscUtil.Benchmarks
             double totalCost = 0.0;
 
             int lineNum = 0;
-            foreach (var line in s_lines.AsSpan().SplitAll("\r\n".AsSpan(), SpanSplitOptions.RemoveEmptyEntries))
+            foreach (var line in s_lines.AsSpan().SplitAll("\r\n".AsSpan()))
             {
                 if (lineNum++ == 0)
                     continue;
