@@ -128,7 +128,7 @@ namespace MiscUtil.Tests
         public static IEnumerable<object[]> DateTimeData()
         {
             // Utf8Parser only supports these formats:
-#if NET472
+#if NET48
             foreach (var f in new[] { "G", "O", "R" })
 #else
             foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "O", "R", "s", "t", "T", "u", "U", "y" })
@@ -153,7 +153,7 @@ namespace MiscUtil.Tests
         public static IEnumerable<object[]> DateTimeOffsetData()
         {
             // Utf8Parser only supports these formats:
-#if NET472
+#if NET48
             foreach (var f in new[] { "G", "R" })
 #else
             foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "R", "s", "t", "T", "u", "y" })
