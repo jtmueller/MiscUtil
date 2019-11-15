@@ -18,6 +18,8 @@ allocating a substring! Save memory, enjoy great performance!
  * `ToDateTime` (limited format support in .NET Framework/Standard 2.0)
  * `ToDateTimeOffset` (limited format support in .NET Framework/Standard 2.0)
  * Support for other types added as my needs, or your requests (or pull requests!) dictate.
+   See [Utf8Parser](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.text.utf8parser?view=netstandard-2.1) 
+   for available types.
 
 **Comparison:**
 
@@ -40,5 +42,5 @@ StringBuilder itself, before allocating the return string.
   * `TrimEnd`, `TrimStart`, `Trim`
   * `ToUpperInvariant`/`ToUpper`
   * `ToLowerInvariant`/`ToLower`
-  * .NET Standard 2.0 only: adds an `Append` overload that accepts `ReadOnlySpan<char>`
-    (this overload is built-in to .NET Standard 2.1)
+  * .NET Standard 2.0 only: adds `Append` and `CopyTo` overloads that accept `ReadOnlySpan<char>`
+    and `Span<char>` respectively (these overloads are built-in to .NET Standard 2.1).

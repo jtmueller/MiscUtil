@@ -23,6 +23,21 @@ namespace MiscUtil.Tests
         }
 
         [Theory]
+        [InlineData("0", 0L)]
+        [InlineData("3912", 3912L)]
+        [InlineData(" 42 ", 42L)]
+        [InlineData("-17923568", -17923568L)]
+        [InlineData("bogus", null)]
+        [InlineData("1234abc", null)]
+        [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+            "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
+        public void LongParsing(string input, long? expected)
+        {
+            Assert.Equal(expected, input.AsSpan().ToLong());
+        }
+
+        [Theory]
         [InlineData("0", 0.0)]
         [InlineData("3912.1234", 3912.1234)]
         [InlineData(" 42.8 ", 42.8)]
@@ -36,6 +51,22 @@ namespace MiscUtil.Tests
         public void DoubleParsing(string input, double? expected)
         {
             Assert.Equal(expected, input.AsSpan().ToDouble());
+        }
+
+        [Theory]
+        [InlineData("0", 0.0f)]
+        [InlineData("3912.1234", 3912.1234f)]
+        [InlineData(" 42.8 ", 42.8f)]
+        [InlineData("-17923568.1", -17923568.1f)]
+        [InlineData("bogus", null)]
+        [InlineData("12345.67abc", null)]
+        [InlineData("abc12345.67", null)]
+        [InlineData("Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
+            "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
+        public void FloatParsing(string input, float? expected)
+        {
+            Assert.Equal(expected, input.AsSpan().ToFloat());
         }
 
         public static IEnumerable<object[]> DecimalData()
@@ -97,7 +128,7 @@ namespace MiscUtil.Tests
         public static IEnumerable<object[]> DateTimeData()
         {
             // Utf8Parser only supports these formats:
-#if NET472
+#if NET48
             foreach (var f in new[] { "G", "O", "R" })
 #else
             foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "O", "R", "s", "t", "T", "u", "U", "y" })
@@ -122,7 +153,7 @@ namespace MiscUtil.Tests
         public static IEnumerable<object[]> DateTimeOffsetData()
         {
             // Utf8Parser only supports these formats:
-#if NET472
+#if NET48
             foreach (var f in new[] { "G", "R" })
 #else
             foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "R", "s", "t", "T", "u", "y" })

@@ -85,7 +85,105 @@ namespace MiscUtil
 #endif
 
         /// <summary>
-        ///     Parses a double from a char span consisting only of numeric characters, prefixed by an optional minus sign.
+        ///     Parses a long from a char span.
+        /// </summary>
+#if NETSTANDARD2_0
+        public static unsafe long? ToLong(this ReadOnlySpan<char> source)
+        {
+            source = source.Trim();
+            if (source.IsEmpty) return null;
+
+            byte[]? pooledBytes = null;
+            try
+            {
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
+
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out long value, out int bytesConsumed))
+                {
+                    // If we didn't consume all the bytes, it should fail to parse.
+                    if (bytesConsumed < encodedByteCount)
+                        return null;
+                    return value;
+                }
+            }
+            finally
+            {
+                if (pooledBytes != null)
+                    ArrayPool<byte>.Shared.Return(pooledBytes);
+            }
+
+            return null;
+        }
+#else
+        public static long? ToLong(this ReadOnlySpan<char> source)
+        {
+            if (long.TryParse(source, out long parsed))
+                return parsed;
+            return null;
+        }
+#endif
+
+        /// <summary>
+        ///     Parses a float from a char span.
+        /// </summary>
+#if NETSTANDARD2_0
+        public static unsafe float? ToFloat(this ReadOnlySpan<char> source)
+        {
+            source = source.Trim();
+            if (source.IsEmpty) return null;
+
+            byte[]? pooledBytes = null;
+            try
+            {
+                int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
+                if (maxByteCount > s_maxStack)
+                    pooledBytes = ArrayPool<byte>.Shared.Rent(maxByteCount);
+                Span<byte> bytes = pooledBytes ?? stackalloc byte[maxByteCount];
+
+                int encodedByteCount;
+                fixed (char* cp = source)
+                fixed (byte* bp = bytes)
+                {
+                    encodedByteCount = Encoding.UTF8.GetBytes(cp, source.Length, bp, maxByteCount);
+                }
+
+                if (Utf8Parser.TryParse(bytes.Slice(0, encodedByteCount), out float value, out int bytesConsumed))
+                {
+                    // If we didn't consume all the bytes, it should fail to parse.
+                    if (bytesConsumed < encodedByteCount)
+                        return null;
+                    return value;
+                }
+            }
+            finally
+            {
+                if (pooledBytes != null)
+                    ArrayPool<byte>.Shared.Return(pooledBytes);
+            }
+
+            return null;
+        }
+#else
+        public static float? ToFloat(this ReadOnlySpan<char> source)
+        {
+            if (float.TryParse(source, out float parsed))
+                return parsed;
+            return null;
+        }
+#endif
+
+        /// <summary>
+        ///     Parses a double from a char span.
         /// </summary>
 #if NETSTANDARD2_0
         public static unsafe double? ToDouble(this ReadOnlySpan<char> source)
@@ -93,7 +191,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -134,7 +232,7 @@ namespace MiscUtil
 #endif
 
         /// <summary>
-        ///     Parses a decimal from a char span consisting only of numeric characters, prefixed by an optional minus sign.
+        ///     Parses a decimal from a char span.
         /// </summary>
 #if NETSTANDARD2_0
         public static unsafe decimal? ToDecimal(this ReadOnlySpan<char> source)
@@ -142,7 +240,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -201,7 +299,7 @@ namespace MiscUtil
                 _ => '\0'
             };
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -249,7 +347,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -346,7 +444,7 @@ namespace MiscUtil
         {
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
@@ -429,7 +527,7 @@ namespace MiscUtil
             source = source.Trim();
             if (source.IsEmpty) return null;
 
-            byte[] pooledBytes = null;
+            byte[]? pooledBytes = null;
             try
             {
                 int maxByteCount = Encoding.UTF8.GetMaxByteCount(source.Length);
