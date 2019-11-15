@@ -11,7 +11,10 @@ namespace MiscUtil
         public static ValueTask<(T1, T2)> WhenAll<T1, T2>(Task<T1> task1, Task<T2> task2)
         {
             static async ValueTask<(T1, T2)> Awaited(Task<T1> t1, Task<T2> t2)
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false));
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2);
+            }
 
 #if NETSTANDARD2_0
             if (task1.Status == TaskStatus.RanToCompletion &&
@@ -33,7 +36,10 @@ namespace MiscUtil
         public static ValueTask<(T1, T2)> WhenAll<T1, T2>(ValueTask<T1> task1, ValueTask<T2> task2)
         {
             static async ValueTask<(T1, T2)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2)
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false));
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2);
+            }
 
             if (task1.IsCompletedSuccessfully && task2.IsCompletedSuccessfully)
             {
@@ -49,8 +55,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3)> WhenAll<T1, T2, T3>(Task<T1> task1, Task<T2> task2, Task<T3> task3)
         {
-            static async ValueTask<(T1, T2, T3)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3);
+            }
 
 #if NETSTANDARD2_0
             if (task1.Status == TaskStatus.RanToCompletion &&
@@ -73,8 +82,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3)> WhenAll<T1, T2, T3>(ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3)
         {
-            static async ValueTask<(T1, T2, T3)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3);
+            }
 
             if (task1.IsCompletedSuccessfully && task2.IsCompletedSuccessfully &&
                 task3.IsCompletedSuccessfully)
@@ -91,8 +103,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4)
         {
-            static async ValueTask<(T1, T2, T3, T4)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3, Task<T4> t4) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false), await t4.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3, T4)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3, Task<T4> t4)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3, await t4);
+            }
 
 #if NETSTANDARD2_0
             if (task1.Status == TaskStatus.RanToCompletion &&
@@ -116,8 +131,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4)
         {
-            static async ValueTask<(T1, T2, T3, T4)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3, ValueTask<T4> t4) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false), await t4.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3, T4)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3, ValueTask<T4> t4)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3, await t4);
+            }
 
             if (task1.IsCompletedSuccessfully && task2.IsCompletedSuccessfully &&
                 task3.IsCompletedSuccessfully && task4.IsCompletedSuccessfully)
@@ -134,8 +152,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5)
         {
-            static async ValueTask<(T1, T2, T3, T4, T5)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3, Task<T4> t4, Task<T5> t5) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false), await t4.ConfigureAwait(false), await t5.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3, T4, T5)> Awaited(Task<T1> t1, Task<T2> t2, Task<T3> t3, Task<T4> t4, Task<T5> t5)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3, await t4, await t5);
+            }
 
 #if NETSTANDARD2_0
             if (task1.Status == TaskStatus.RanToCompletion &&
@@ -161,8 +182,11 @@ namespace MiscUtil
         /// </summary>
         public static ValueTask<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(ValueTask<T1> task1, ValueTask<T2> task2, ValueTask<T3> task3, ValueTask<T4> task4, ValueTask<T5> task5)
         {
-            static async ValueTask<(T1, T2, T3, T4, T5)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3, ValueTask<T4> t4, ValueTask<T5> t5) 
-                => (await t1.ConfigureAwait(false), await t2.ConfigureAwait(false), await t3.ConfigureAwait(false), await t4.ConfigureAwait(false), await t5.ConfigureAwait(false));
+            static async ValueTask<(T1, T2, T3, T4, T5)> Awaited(ValueTask<T1> t1, ValueTask<T2> t2, ValueTask<T3> t3, ValueTask<T4> t4, ValueTask<T5> t5)
+            {
+                await new SynchronizationContextRemover();
+                return (await t1, await t2, await t3, await t4, await t5);
+            }
 
             if (task1.IsCompletedSuccessfully && task2.IsCompletedSuccessfully &&
                 task3.IsCompletedSuccessfully && task4.IsCompletedSuccessfully &&
