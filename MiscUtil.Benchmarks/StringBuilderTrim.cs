@@ -26,6 +26,7 @@ namespace MiscUtil.Benchmarks
         [IterationSetup]
         public void IterationSetup()
         {
+            _sb?.Clear();
             _sb = new StringBuilder(s_str);
         }
     }

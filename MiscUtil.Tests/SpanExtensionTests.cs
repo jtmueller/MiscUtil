@@ -34,7 +34,7 @@ namespace MiscUtil.Tests
             "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null)]
         public void LongParsing(string input, long? expected)
         {
-            Assert.Equal(expected, input.AsSpan().ToLong());
+            Assert.Equal(expected, input.AsSpan().ToInt64());
         }
 
         [Theory]

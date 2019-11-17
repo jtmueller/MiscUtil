@@ -85,10 +85,16 @@ namespace MiscUtil
 #endif
 
         /// <summary>
+        ///     Parses an integer from a string consisting only of numeric characters, prefixed by an optional minus sign.
+        /// </summary>
+        public static int? ToInt32(this string source)
+            => ToInt32(source.AsSpan());
+
+        /// <summary>
         ///     Parses a long from a char span.
         /// </summary>
 #if NETSTANDARD2_0
-        public static unsafe long? ToLong(this ReadOnlySpan<char> source)
+        public static unsafe long? ToInt64(this ReadOnlySpan<char> source)
         {
             source = source.Trim();
             if (source.IsEmpty) return null;
@@ -125,13 +131,19 @@ namespace MiscUtil
             return null;
         }
 #else
-        public static long? ToLong(this ReadOnlySpan<char> source)
+        public static long? ToInt64(this ReadOnlySpan<char> source)
         {
             if (long.TryParse(source, out long parsed))
                 return parsed;
             return null;
         }
 #endif
+
+        /// <summary>
+        ///     Parses a long from a string.
+        /// </summary>
+        public static long? ToInt64(this string source)
+            => ToInt64(source.AsSpan());
 
         /// <summary>
         ///     Parses a float from a char span.
@@ -183,6 +195,12 @@ namespace MiscUtil
 #endif
 
         /// <summary>
+        ///     Parses a float from a string.
+        /// </summary>
+        public static float? ToFloat(this string source)
+            => ToFloat(source.AsSpan());
+
+        /// <summary>
         ///     Parses a double from a char span.
         /// </summary>
 #if NETSTANDARD2_0
@@ -232,6 +250,12 @@ namespace MiscUtil
 #endif
 
         /// <summary>
+        ///     Parses a double from a string.
+        /// </summary>
+        public static double? ToDouble(this string source)
+            => ToDouble(source.AsSpan());
+
+        /// <summary>
         ///     Parses a decimal from a char span.
         /// </summary>
 #if NETSTANDARD2_0
@@ -279,6 +303,12 @@ namespace MiscUtil
             return null;
         }
 #endif
+
+        /// <summary>
+        ///     Parses a decimal from a string.
+        /// </summary>
+        public static decimal? ToDecimal(this string source)
+            => ToDecimal(source.AsSpan());
 
         /// <summary>
         ///     Parses a <see cref="Guid"/> from a char span.
@@ -336,6 +366,12 @@ namespace MiscUtil
         }
 #endif
 
+        /// <summary>
+        ///     Parses a <see cref="Guid"/> from a string.
+        /// </summary>
+        public static Guid? ToGuid(this string source)
+            => ToGuid(source.AsSpan());
+
 #if NETSTANDARD2_0
         /// <summary>
         ///     Parses a <see cref="DateTime"/> from a char span. Limited format support: Only supports the G, O, and R DateTime formats.
@@ -375,19 +411,15 @@ namespace MiscUtil
 
             return null;
         }
-#else
 
-        static readonly Lazy<Dictionary<char, char[]>> s_formatChars = new Lazy<Dictionary<char, char[]>>(() =>
-        {
-            var chars = new[] { 'd', 'f', 'g', 'm', 'o', 'r', 's', 't', 'u', 'y' };
-            var dict = new Dictionary<char, char[]>(chars.Length * 2);
-            foreach (var c in chars)
-            {
-                dict.Add(c, new[] { c });
-                dict.Add(char.ToUpperInvariant(c), new[] { char.ToUpperInvariant(c) });
-            }
-            return dict;
-        });
+        /// <summary>
+        ///     Parses a <see cref="DateTime"/> from a string. Limited format support: Only supports the G, O, and R DateTime formats.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="formatChar">The optional format specifier to use for parsing. Only the following formats are supported: G, O, R.</param>
+        public static DateTime? ToDateTime(this string source, char formatChar = '\0')
+            => ToDateTime(source.AsSpan(), formatChar);
+#else
 
         /// <summary>
         ///     Parses a <see cref="DateTime"/> from a char span.
@@ -407,8 +439,8 @@ namespace MiscUtil
             }
             else
             {
-                var formatChars = s_formatChars.Value.TryGetValue(formatChar, out var chars)
-                    ? chars.AsSpan() : formatChar.ToString().AsSpan();
+                Span<char> formatChars = stackalloc char[1];
+                formatChars[0] = formatChar;
                 if (DateTime.TryParseExact(source, formatChars, CultureInfo.InvariantCulture, 
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
                 {
@@ -417,6 +449,14 @@ namespace MiscUtil
             }
             return null;
         }
+
+        /// <summary>
+        ///     Parses a <see cref="DateTime"/> from a string.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTime? ToDateTime(this string source, char formatChar = '\0')
+            => ToDateTime(source.AsSpan(), formatChar);
 
         /// <summary>
         ///     Parses a <see cref="DateTime"/> from a char span.
@@ -432,6 +472,14 @@ namespace MiscUtil
             }
             return null;
         }
+
+        /// <summary>
+        ///     Parses a <see cref="DateTime"/> from a string.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTime? ToDateTime(this string source, ReadOnlySpan<char> format)
+            => ToDateTime(source.AsSpan(), format);
 #endif
 
 #if NETSTANDARD2_0
@@ -472,6 +520,15 @@ namespace MiscUtil
 
             return null;
         }
+
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a string. Limited format support: Only supports the G and R DateTimeOffset formats.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing. Only the following formats are supported: G, R.</param>
+        public static DateTimeOffset? ToDateTimeOffset(this string source, char formatChar = '\0')
+            => ToDateTimeOffset(source.AsSpan(), formatChar);
+
 #else
         /// <summary>
         ///     Parses a <see cref="DateTimeOffset"/> from a char span.
@@ -491,8 +548,8 @@ namespace MiscUtil
             }
             else
             {
-                var formatChars = s_formatChars.Value.TryGetValue(formatChar, out var chars)
-                    ? chars.AsSpan() : formatChar.ToString().AsSpan();
+                Span<char> formatChars = stackalloc char[1];
+                formatChars[0] = formatChar;
                 if (DateTimeOffset.TryParseExact(source, formatChars, CultureInfo.InvariantCulture,
                     DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out var parsed))
                 {
@@ -501,6 +558,14 @@ namespace MiscUtil
             }
             return null;
         }
+
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a string.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTimeOffset? ToDateTimeOffset(this string source, char formatChar = '\0')
+            => ToDateTimeOffset(source.AsSpan(), formatChar);
 
         /// <summary>
         ///     Parses a <see cref="DateTimeOffset"/> from a char span.
@@ -516,6 +581,15 @@ namespace MiscUtil
             }
             return null;
         }
+
+        /// <summary>
+        ///     Parses a <see cref="DateTimeOffset"/> from a string.
+        /// </summary>
+        /// <param name="source">The span to parse.</param>
+        /// <param name="format">The optional format specifier to use for parsing.</param>
+        public static DateTimeOffset? ToDateTimeOffset(this string source, ReadOnlySpan<char> format)
+            => ToDateTimeOffset(source.AsSpan(), format);
+
 #endif
 
         /// <summary>
@@ -568,19 +642,21 @@ namespace MiscUtil
 #endif
 
         /// <summary>
+        ///     Parses a boolean from a string.
+        /// </summary>
+        public static bool? ToBoolean(this string source)
+            => ToBoolean(source.AsSpan());
+
+        /// <summary>
         ///     Efficiently determines without allocations if two strings are equal after they are both trimmed.
         /// </summary>
         public static bool TrimEquals(this string source, string other, StringComparison comparisonType = StringComparison.Ordinal)
-        {
-            return source.AsSpan().Trim().Equals(other.AsSpan().Trim(), comparisonType);
-        }
+            => source.AsSpan().Trim().Equals(other.AsSpan().Trim(), comparisonType);
 
         /// <summary>
         ///     Determines if two char spans are equal after they are both trimmed.
         /// </summary>
         public static bool TrimEquals(this ReadOnlySpan<char> source, ReadOnlySpan<char> other, StringComparison comparisonType = StringComparison.Ordinal)
-        {
-            return source.Trim().Equals(other.Trim(), comparisonType);
-        }
+            => source.Trim().Equals(other.Trim(), comparisonType);
     }
 }

@@ -7,6 +7,8 @@ namespace MiscUtil.Benchmarks
     [Config(typeof(BenchmarkConfig))]
     public class CsvImport
     {
+        private static readonly char[] newLine = "\r\n".ToCharArray();
+
         [Benchmark(Baseline = true)]
         public void SumDataStrings()
         {
@@ -15,7 +17,7 @@ namespace MiscUtil.Benchmarks
             double totalCost = 0.0;
 
             int lineNum = 0;
-            foreach (var line in s_lines.Split(new[] { "\r\n" }, StringSplitOptions.None))
+            foreach (var line in s_lines.Split(newLine, StringSplitOptions.None))
             {
                 if (lineNum++ == 0)
                     continue;
@@ -26,13 +28,13 @@ namespace MiscUtil.Benchmarks
                     switch (col++)
                     {
                         case 8:
-                            unitsSold += int.TryParse(part, out int u) ? u : 0;
+                            unitsSold += part.ToInt32().GetValueOrDefault();
                             break;
                         case 11:
-                            totalRevenue += double.TryParse(part, out double tr) ? tr : 0;
+                            totalRevenue += part.ToDouble().GetValueOrDefault();
                             break;
                         case 12:
-                            totalCost += double.TryParse(part, out double tc) ? tc : 0;
+                            totalCost += part.ToDouble().GetValueOrDefault();
                             break;
                     }
                 }
@@ -49,7 +51,7 @@ namespace MiscUtil.Benchmarks
             double totalCost = 0.0;
 
             int lineNum = 0;
-            foreach (var line in s_lines.AsSpan().SplitAll("\r\n".AsSpan()))
+            foreach (var line in s_lines.AsSpan().SplitAll(newLine))
             {
                 if (lineNum++ == 0)
                     continue;
