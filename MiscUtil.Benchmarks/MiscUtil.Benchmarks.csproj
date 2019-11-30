@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -12,6 +12,10 @@ namespace MiscUtil
 {
     /// <summary>
     /// This is an internal type in System.Text that could be useful in other situations.
+    /// On .NET Core, this type is faster than StringBuilder, and allocates less memory.
+    /// On .NET Framework, this type is slower than StringBuilder, but allocates less memory.
+    /// On both platforms, the limitations of ref structs mean that StringBuilder may be a better choice
+    /// depending on circumstances.
     /// </summary>
     public ref struct ValueStringBuilder
     {
