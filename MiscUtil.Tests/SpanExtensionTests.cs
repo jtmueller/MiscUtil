@@ -69,15 +69,15 @@ namespace MiscUtil.Tests
             Assert.Equal(expected, input.AsSpan().ToFloat());
         }
 
-        public static IEnumerable<object[]> DecimalData()
+        public static IEnumerable<object?[]> DecimalData()
         {
-            yield return new object[] { "0", 0.0M };
-            yield return new object[] { "3912.1234", 3912.1234M };
-            yield return new object[] { " 42.8 ", 42.8M };
-            yield return new object[] { " -17.1", -17.1M };
-            yield return new object[] { "bogus", null };
-            yield return new object[] { "12345.67abc", null };
-            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            yield return new object?[] { "0", 0.0M };
+            yield return new object?[] { "3912.1234", 3912.1234M };
+            yield return new object?[] { " 42.8 ", 42.8M };
+            yield return new object?[] { " -17.1", -17.1M };
+            yield return new object?[] { "bogus", null };
+            yield return new object?[] { "12345.67abc", null };
+            yield return new object?[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
                 "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
                 "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null };
         }
@@ -104,16 +104,16 @@ namespace MiscUtil.Tests
             Assert.Equal(expected, input.AsSpan().ToBoolean());
         }
 
-        public static IEnumerable<object[]> GuidData()
+        public static IEnumerable<object?[]> GuidData()
         {
             foreach (var f in new[] { "N", "D", "B", "P" })
             {
                 var g = Guid.NewGuid();
-                yield return new object[] { g.ToString(f), g };
+                yield return new object?[] { g.ToString(f), g };
             }
-            yield return new object[] { "abcdefg", null };
-            yield return new object[] { " 286f4642-17fe-4930-86c5-d171c8ca74d2 ", new Guid("286f4642-17fe-4930-86c5-d171c8ca74d2") };
-            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            yield return new object?[] { "abcdefg", null };
+            yield return new object?[] { " 286f4642-17fe-4930-86c5-d171c8ca74d2 ", new Guid("286f4642-17fe-4930-86c5-d171c8ca74d2") };
+            yield return new object?[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
                 "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
                 "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", null };
         }
@@ -125,7 +125,7 @@ namespace MiscUtil.Tests
             Assert.Equal(expected, input.AsSpan().ToGuid());
         }
 
-        public static IEnumerable<object[]> DateTimeData()
+        public static IEnumerable<object?[]> DateTimeData()
         {
             // Utf8Parser only supports these formats:
 #if NET48
@@ -135,10 +135,10 @@ namespace MiscUtil.Tests
 #endif
             {
                 var ds = DateTime.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
-                yield return new object[] { ds, f[0], DateTime.ParseExact(ds, f, CultureInfo.InvariantCulture) };
+                yield return new object?[] { ds, f[0], DateTime.ParseExact(ds, f, CultureInfo.InvariantCulture) };
             }
-            yield return new object[] { "abcdefg", '\0', null };
-            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            yield return new object?[] { "abcdefg", '\0', null };
+            yield return new object?[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
                 "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
                 "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", '\0', null };
         }
@@ -150,7 +150,7 @@ namespace MiscUtil.Tests
             Assert.Equal(expected, input.AsSpan().ToDateTime(format));
         }
 
-        public static IEnumerable<object[]> DateTimeOffsetData()
+        public static IEnumerable<object?[]> DateTimeOffsetData()
         {
             // Utf8Parser only supports these formats:
 #if NET48
@@ -160,10 +160,10 @@ namespace MiscUtil.Tests
 #endif
             {
                 var ds = DateTimeOffset.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
-                yield return new object[] { ds, f[0], DateTimeOffset.ParseExact(ds, f, CultureInfo.InvariantCulture) };
+                yield return new object?[] { ds, f[0], DateTimeOffset.ParseExact(ds, f, CultureInfo.InvariantCulture) };
             }
-            yield return new object[] { "abcdefg", '\0', null };
-            yield return new object[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
+            yield return new object?[] { "abcdefg", '\0', null };
+            yield return new object?[] { "Really long string that is far beyond the maximum size for a stack-allocated byte array. " +
                 "I really can't tell you how silly it is to attempt to parse a string like this into a value, " +
                 "but we can't crash if some idiot tries. And you know they will try. Can't stop them, idiots.", '\0', null };
         }
