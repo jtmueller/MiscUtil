@@ -17,6 +17,11 @@ namespace MiscUtil
     /// On both platforms, the limitations of ref structs mean that StringBuilder may be a better choice
     /// depending on circumstances.
     /// </summary>
+    /// <remarks>
+    /// WARNING: As currently written, ValueStringBuilder does no runtime validation of argument ranges in Release builds.
+    /// For this reason, you should include the source code in your project rather than referencing this type in an external library
+    /// so that the Debug.Assert checks can be effective in Debug builds of your project.
+    /// </remarks>
     public ref struct ValueStringBuilder
     {
         private char[]? _arrayToReturnToPool;
@@ -117,6 +122,8 @@ namespace MiscUtil
         public ReadOnlySpan<char> AsSpan() => _chars.Slice(0, _pos);
         public ReadOnlySpan<char> AsSpan(int start) => _chars.Slice(start, _pos - start);
         public ReadOnlySpan<char> AsSpan(int start, int length) => _chars.Slice(start, length);
+
+        public int IndexOf(char searchChar) => AsSpan().IndexOf(searchChar);
 
         public bool TryCopyTo(Span<char> destination, out int charsWritten)
         {
