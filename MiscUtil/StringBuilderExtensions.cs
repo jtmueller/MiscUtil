@@ -7,13 +7,31 @@ namespace MiscUtil
     public static class StringBuilderExtensions
     {
         /// <summary>
+        ///     Removes all trailing occurrences of whitespace characters from the current <see cref="StringBuilder"/> object.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder TrimEnd(this StringBuilder sb)
+            => TrimEnd(sb, ReadOnlySpan<char>.Empty);
+
+        /// <summary>
         ///     Removes all trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
         ///     If no characters are specified, removes trailing whitespace.
         /// </summary>
         /// <param name="sb">The <see cref="StringBuilder"/></param>
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
-        public static StringBuilder TrimEnd(this StringBuilder sb, params char[] trimChars)
+        public static StringBuilder TrimEnd(this StringBuilder sb, params char[]? trimChars)
+            => TrimEnd(sb, trimChars);
+
+        /// <summary>
+        ///     Removes all trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
+        ///     If no characters are specified, removes trailing whitespace.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="trimChars">An array of Unicode characters to remove.</param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder TrimEnd(this StringBuilder sb, ReadOnlySpan<char> trimChars)
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
@@ -23,7 +41,7 @@ namespace MiscUtil
 
             int length = sb.Length;
 
-            if (trimChars is null || trimChars.Length == 0)
+            if (trimChars.IsEmpty)
             {
                 // trim whitespace
                 for (int i = sb.Length - 1; i >= 0; i--)
@@ -39,7 +57,7 @@ namespace MiscUtil
                 // trim specific chars
                 for (int i = sb.Length - 1; i >= 0; i--)
                 {
-                    if (Array.IndexOf(trimChars, sb[i]) > -1)
+                    if (trimChars.IndexOf(sb[i]) > -1)
                         length--;
                     else
                         break;
@@ -53,13 +71,31 @@ namespace MiscUtil
         }
 
         /// <summary>
+        ///     Removes all leading occurrences of whitespace characters from the current <see cref="StringBuilder"/> object.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder TrimStart(this StringBuilder sb)
+            => TrimStart(sb, ReadOnlySpan<char>.Empty);
+
+        /// <summary>
         ///     Removes all leading occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
         ///     If no characters are specified, removes trailing whitespace.
         /// </summary>
         /// <param name="sb">The <see cref="StringBuilder"/></param>
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
-        public static StringBuilder TrimStart(this StringBuilder sb, params char[] trimChars)
+        public static StringBuilder TrimStart(this StringBuilder sb, params char[]? trimChars)
+            => TrimStart(sb, trimChars);
+
+        /// <summary>
+        ///     Removes all leading occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
+        ///     If no characters are specified, removes trailing whitespace.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="trimChars">An array of Unicode characters to remove.</param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder TrimStart(this StringBuilder sb, ReadOnlySpan<char> trimChars)
         {
             if (sb is null)
                 throw new ArgumentNullException(nameof(sb));
@@ -69,7 +105,7 @@ namespace MiscUtil
 
             int removeCount = 0;
 
-            if (trimChars is null || trimChars.Length == 0)
+            if (trimChars.IsEmpty)
             {
                 // trim whitespace
                 for (int i = 0; i < sb.Length; i++)
@@ -85,7 +121,7 @@ namespace MiscUtil
                 // trim specific chars
                 for (int i = 0; i < sb.Length; i++)
                 {
-                    if (Array.IndexOf(trimChars, sb[i]) > -1)
+                    if (trimChars.IndexOf(sb[i]) > -1)
                         removeCount++;
                     else
                         break;
@@ -99,6 +135,14 @@ namespace MiscUtil
         }
 
         /// <summary>
+        ///     Removes all leading and trailing occurrences of whitespace characters from the current <see cref="StringBuilder"/> object.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder Trim(this StringBuilder sb)
+            => sb.TrimEnd(ReadOnlySpan<char>.Empty).TrimStart(ReadOnlySpan<char>.Empty);
+
+        /// <summary>
         ///     Removes all leading and trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
         ///     If no characters are specified, removes whitespace.
         /// </summary>
@@ -106,6 +150,16 @@ namespace MiscUtil
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
         public static StringBuilder Trim(this StringBuilder sb, params char[] trimChars)
+            => sb.TrimEnd(trimChars).TrimStart(trimChars);
+
+        /// <summary>
+        ///     Removes all leading and trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
+        ///     If no characters are specified, removes whitespace.
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/></param>
+        /// <param name="trimChars">An array of Unicode characters to remove.</param>
+        /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
+        public static StringBuilder Trim(this StringBuilder sb, ReadOnlySpan<char> trimChars)
             => sb.TrimEnd(trimChars).TrimStart(trimChars);
 
         /// <summary>
