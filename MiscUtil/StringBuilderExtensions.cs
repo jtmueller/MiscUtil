@@ -280,5 +280,17 @@ namespace MiscUtil
         /// </remarks>
         public static StringBuilder Append(this StringBuilder sb, ReadOnlyMemory<char> chars)
             => sb.Append(chars.Span);
+
+#if NETSTANDARD2_1
+        /// <summary>
+        ///     Removes the given <see cref="Range"/> of characters from the StringBuilder.
+        /// </summary>
+        public static StringBuilder Remove(this StringBuilder sb, Range range)
+        {
+            var (offset, length) = range.GetOffsetAndLength(sb.Length);
+            sb.Remove(offset, length);
+            return sb;
+        }
+#endif
     }
 }
