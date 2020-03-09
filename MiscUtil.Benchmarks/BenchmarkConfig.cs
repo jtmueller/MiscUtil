@@ -13,7 +13,7 @@ namespace MiscUtil.Benchmarks
         public BenchmarkConfig()
         {
             Add(Job.Default
-                .With(CoreRuntime.Core30)
+                .With(CoreRuntime.Core31)
                 .With(Platform.X64)
                 .With(Jit.RyuJit));
             Add(Job.Default
