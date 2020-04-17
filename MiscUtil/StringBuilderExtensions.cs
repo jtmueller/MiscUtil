@@ -22,7 +22,7 @@ namespace MiscUtil
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
         public static StringBuilder TrimEnd(this StringBuilder sb, params char[]? trimChars)
-            => TrimEnd(sb, trimChars);
+            => TrimEnd(sb, trimChars.AsSpan());
 
         /// <summary>
         ///     Removes all trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
@@ -86,7 +86,7 @@ namespace MiscUtil
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
         public static StringBuilder TrimStart(this StringBuilder sb, params char[]? trimChars)
-            => TrimStart(sb, trimChars);
+            => TrimStart(sb, trimChars.AsSpan());
 
         /// <summary>
         ///     Removes all leading occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
@@ -150,7 +150,7 @@ namespace MiscUtil
         /// <param name="trimChars">An array of Unicode characters to remove, or null.</param>
         /// <returns>The <see cref="StringBuilder"/> instance with the indicated trailing characters removed.</returns>
         public static StringBuilder Trim(this StringBuilder sb, params char[] trimChars)
-            => sb.TrimEnd(trimChars).TrimStart(trimChars);
+            => sb.TrimEnd(trimChars.AsSpan()).TrimStart(trimChars.AsSpan());
 
         /// <summary>
         ///     Removes all leading and trailing occurrences of a set of characters from the current <see cref="StringBuilder"/> object.
