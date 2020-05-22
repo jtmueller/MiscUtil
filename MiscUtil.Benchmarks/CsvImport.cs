@@ -7,7 +7,7 @@ namespace MiscUtil.Benchmarks
     [Config(typeof(BenchmarkConfig))]
     public class CsvImport
     {
-        private static readonly char[] newLine = "\r\n".ToCharArray();
+        private const string newLine = "\r\n";
 
         [Benchmark(Baseline = true)]
         public void SumDataStrings()
@@ -17,7 +17,7 @@ namespace MiscUtil.Benchmarks
             double totalCost = 0.0;
 
             int lineNum = 0;
-            foreach (var line in s_lines.Split(newLine, StringSplitOptions.None))
+            foreach (var line in s_lines.Split(newLine.ToCharArray(), StringSplitOptions.None))
             {
                 if (lineNum++ == 0)
                     continue;
@@ -50,15 +50,19 @@ namespace MiscUtil.Benchmarks
             double totalRevenue = 0.0;
             double totalCost = 0.0;
 
+            var lines = s_lines.AsSpan();
             int lineNum = 0;
-            foreach (var line in s_lines.AsSpan().SplitAll(newLine))
+            foreach (var lr in lines.Split(newLine))
             {
                 if (lineNum++ == 0)
                     continue;
 
+                var line = lines[lr];
+
                 int col = 0;
-                foreach (var part in line.Split(','))
+                foreach (var pr in line.Split(','))
                 {
+                    var part = line[pr];
                     switch (col++)
                     {
                         case 8:

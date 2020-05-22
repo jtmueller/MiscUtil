@@ -19,8 +19,9 @@ namespace MiscUtil.Tests
         {
             var parts = new List<string>();
 
-            foreach (var part in str.AsSpan().Split(separator))
-                parts.Add(part.ToString());
+            var span = str.AsSpan();
+            foreach (var range in span.Split(separator))
+                parts.Add(span[range].ToString());
 
             Assert.Equal(str.Split(separator), parts);
         }
@@ -38,8 +39,13 @@ namespace MiscUtil.Tests
         {
             var parts = new List<string>();
 
-            foreach (var part in str.AsSpan().Split(separator, SpanSplitOptions.RemoveEmptyEntries))
-                parts.Add(part.ToString());
+            var span = str.AsSpan();
+            foreach (var range in span.Split(separator))
+            {
+                var part = span[range];
+                if (!part.IsEmpty)
+                    parts.Add(part.ToString());
+            }
 
             Assert.Equal(str.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries), parts);
         }
@@ -51,8 +57,9 @@ namespace MiscUtil.Tests
         {
             var parts = new List<string>();
 
-            foreach (var part in str.AsSpan().SplitAll(separator.AsSpan()))
-                parts.Add(part.ToString());
+            var span = str.AsSpan();
+            foreach (var range in span.Split(separator))
+                parts.Add(span[range].ToString());
 
             Assert.Equal(str.Split(new[] { separator }, StringSplitOptions.None), parts);
         }

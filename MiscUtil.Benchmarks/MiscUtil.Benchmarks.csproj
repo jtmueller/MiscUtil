@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" Condition="$(TargetFramework) == 'net48'" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" Condition="$(TargetFramework) == 'net48'" />
   </ItemGroup>
 
   <ItemGroup>
