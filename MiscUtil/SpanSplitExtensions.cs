@@ -40,7 +40,7 @@ namespace MiscUtil
             _sequence = span;
             _separator = default!;
             _separators = separators;
-            _increment = separators.Length - 1;
+            _increment = Math.Max(0, separators.Length - 1);
             _index = 0;
             _offset = 0;
         }

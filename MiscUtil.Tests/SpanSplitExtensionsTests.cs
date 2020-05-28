@@ -53,6 +53,7 @@ namespace MiscUtil.Tests
         [Theory]
         [InlineData("aaababbaaabbabbaba", "bb")]
         [InlineData("aaaa\r\nbbb\r\ncccc\ncc\r\ndddd", "\r\n")]
+        [InlineData("aaababbaaabbabbaba", "")]
         public void SplitAllChars(string str, string separator)
         {
             var parts = new List<string>();
