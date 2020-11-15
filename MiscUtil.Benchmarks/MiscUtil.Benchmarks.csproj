@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-    <LangVersion>8</LangVersion>
+    <TargetFrameworks>net5.0;netcoreapp3.1;net48</TargetFrameworks>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

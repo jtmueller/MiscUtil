@@ -17,12 +17,16 @@ namespace MiscUtil.Benchmarks
                 .WithPlatform(Platform.X64)
                 .WithJit(Jit.RyuJit));
             AddJob(Job.Default
+                .WithRuntime(CoreRuntime.Core50)
+                .WithPlatform(Platform.X64)
+                .WithJit(Jit.RyuJit));
+            AddJob(Job.Default
                 .WithRuntime(ClrRuntime.Net48)
                 .WithPlatform(Platform.X64)
                 .WithJit(Jit.RyuJit));
             AddDiagnoser(MemoryDiagnoser.Default);
-            AddExporter(CsvMeasurementsExporter.Default);
-            AddExporter(HtmlExporter.Default);
+            //AddExporter(CsvMeasurementsExporter.Default);
+            //AddExporter(HtmlExporter.Default);
             AddExporter(MarkdownExporter.GitHub);
             AddLogger(ConsoleLogger.Default);
         }

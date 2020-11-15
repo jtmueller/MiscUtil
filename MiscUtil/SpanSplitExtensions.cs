@@ -12,19 +12,18 @@ namespace MiscUtil
         /// using a single space as a separator character.
         /// </summary>
         /// <param name="span">The source span to be enumerated.</param>
-        /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}"/>.</returns>
-        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span)
-            => new SpanSplitEnumerator<char>(span, ' ');
+        /// <returns>Returns a <see cref="SpanSplitEnumerator{T}"/>.</returns>
+        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span) => new(span, ' ');
 
         /// <summary>
         /// Returns a type that allows for enumeration of each element within a split span
         /// using the provided separator character.
         /// </summary>
         /// <param name="span">The source span to be enumerated.</param>
-        /// <param name="separator">The separator character to be used to split the provided span.</param>
-        /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}"/>.</returns>
-        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
-            => new SpanSplitEnumerator<char>(span, separator);
+        /// <param name="separator">The separator value to be used to split the provided span.</param>
+        /// <returns>Returns a <see cref="SpanSplitEnumerator{T}"/>.</returns>
+        public static SpanSplitEnumerator<T> Split<T>(this ReadOnlySpan<T> span, T separator) where T : IEquatable<T>
+            => new(span, separator);
 
         /// <summary>
         /// Returns a type that allows for enumeration of each element within a split span
@@ -32,13 +31,135 @@ namespace MiscUtil
         /// </summary>
         /// <param name="span">The source span to be enumerated.</param>
         /// <param name="separator">The separator string to be used to split the provided span.</param>
-        /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}"/>.</returns>
-        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, string separator)
-            => new SpanSplitEnumerator<char>(span, (separator ?? string.Empty).AsSpan());
+        /// <returns>Returns a <see cref="SpanSplitEnumerator{T}"/>.</returns>
+        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, string separator) 
+            => new(span, separator.AsSpan());
+
+        /// <summary>
+        /// Returns a type that allows for enumeration of each element within a split span
+        /// using the provided separator string.
+        /// </summary>
+        /// <param name="span">The source span to be enumerated.</param>
+        /// <param name="separator">The separator sequence to be used to split the provided span.</param>
+        /// <returns>Returns a <see cref="SpanSplitEnumerator{T}"/>.</returns>
+        public static SpanSplitEnumerator<T> Split<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> separator) where T : IEquatable<T>
+            => new(span, separator);
+
+        /// <summary>
+        /// Returns the first two results from splitting a span on a given separator, as <see cref="Range"/> objects that can be used
+        /// to slice the original array. If fewer than two results are found, resulting ranges may be empty.
+        /// </summary>
+        /// <param name="span">The source span to split.</param>
+        /// <param name="separator">The separator value to be used to split the provided span.</param>
+        /// <returns></returns>
+        public static (Range, Range) Split2<T>(this ReadOnlySpan<T> span, T separator) where T: IEquatable<T>
+        {
+            SpanSplitEnumerator<T> enumerator = new(span, separator);
+            Range firstPart = ^0..;
+
+            if (enumerator.MoveNext())
+            {
+                firstPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                return (firstPart, enumerator.Current);
+            }
+
+            return (firstPart, ^0..);
+        }
+
+        /// <summary>
+        /// Returns the first two results from splitting a span on a given separator, as <see cref="Range"/> objects that can be used
+        /// to slice the original array. If fewer than two results are found, resulting ranges may be empty.
+        /// </summary>
+        /// <param name="span">The source span to split.</param>
+        /// <param name="separator">The separator sequence to be used to split the provided span.</param>
+        /// <returns></returns>
+        public static (Range, Range) Split2<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> separator) where T : IEquatable<T>
+        {
+            SpanSplitEnumerator<T> enumerator = new(span, separator);
+            Range firstPart = ^0..;
+
+            if (enumerator.MoveNext())
+            {
+                firstPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                return (firstPart, enumerator.Current);
+            }
+
+            return (firstPart, ^0..);
+        }
+
+        /// <summary>
+        /// Returns the first three results from splitting a span on a given separator, as <see cref="Range"/> objects that can be used
+        /// to slice the original array. If fewer than two results are found, resulting ranges may be empty.
+        /// </summary>
+        /// <param name="span">The source span to split.</param>
+        /// <param name="separator">The separator value to be used to split the provided span.</param>
+        /// <returns></returns>
+        public static (Range, Range, Range) Split3<T>(this ReadOnlySpan<T> span, T separator) where T : IEquatable<T>
+        {
+            SpanSplitEnumerator<T> enumerator = new(span, separator);
+            Range firstPart = ^0..;
+            Range secondPart = ^0..;
+
+            if (enumerator.MoveNext())
+            {
+                firstPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                secondPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                return (firstPart, secondPart, enumerator.Current);
+            }
+
+            return (firstPart, secondPart, ^0..);
+        }
+
+        /// <summary>
+        /// Returns the first three results from splitting a span on a given separator, as <see cref="Range"/> objects that can be used
+        /// to slice the original array. If fewer than two results are found, resulting ranges may be empty.
+        /// </summary>
+        /// <param name="span">The source span to split.</param>
+        /// <param name="separator">The separator sequence to be used to split the provided span.</param>
+        /// <returns></returns>
+        public static (Range, Range, Range) Split3<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> separator) where T : IEquatable<T>
+        {
+            SpanSplitEnumerator<T> enumerator = new(span, separator);
+            Range firstPart = ^0..;
+            Range secondPart = ^0..;
+
+            if (enumerator.MoveNext())
+            {
+                firstPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                secondPart = enumerator.Current;
+            }
+
+            if (enumerator.MoveNext())
+            {
+                return (firstPart, secondPart, enumerator.Current);
+            }
+
+            return (firstPart, secondPart, ^0..);
+        }
     }
 
     /// <summary>
-    /// <see cref="System.SpanSplitEnumerator{T}"/> allows for enumeration of each element within a <see cref="System.ReadOnlySpan{T}"/>
+    /// <see cref="SpanSplitEnumerator{T}"/> allows for enumeration of each element within a <see cref="ReadOnlySpan{T}"/>
     /// that has been split using a provided separator.
     /// </summary>
     public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
@@ -60,14 +181,14 @@ namespace MiscUtil
         /// <summary>
         /// Returns an enumerator that allows for iteration over the split span.
         /// </summary>
-        /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}"/> that can be used to iterate over the split span.</returns>
+        /// <returns>Returns a <see cref="SpanSplitEnumerator{T}"/> that can be used to iterate over the split span.</returns>
         public SpanSplitEnumerator<T> GetEnumerator() => this;
 
         /// <summary>
         /// Returns the current element of the enumeration.
         /// </summary>
-        /// <returns>Returns a <see cref="System.Range"/> instance that indicates the bounds of the current element withing the source span.</returns>
-        public Range Current => new Range(_startCurrent, _endCurrent);
+        /// <returns>Returns a <see cref="Range"/> instance that indicates the bounds of the current element withing the source span.</returns>
+        public Range Current => new(_startCurrent, _endCurrent);
 
         internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
         {

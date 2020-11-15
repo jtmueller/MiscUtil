@@ -209,6 +209,7 @@ namespace MiscUtil
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void AppendSlow(string s)
         {
             int pos = _pos;

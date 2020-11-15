@@ -103,8 +103,9 @@ namespace MiscUtil.Tests
         {
             // Default buffer
             ReadOnlySpan<char> buffer = default;
+            string nullString = default;
 
-            SpanSplitEnumerator<char> enumerator = buffer.Split(null); // null is treated as empty string
+            SpanSplitEnumerator<char> enumerator = buffer.Split(nullString); // null is treated as empty string
             Assert.True(enumerator.MoveNext());
             Assert.Equal(enumerator.Current, new Range(0, 0));
             Assert.False(enumerator.MoveNext());
@@ -122,7 +123,7 @@ namespace MiscUtil.Tests
             // Empty buffer
             buffer = ReadOnlySpan<char>.Empty;
 
-            enumerator = buffer.Split(null);
+            enumerator = buffer.Split(nullString);
             Assert.True(enumerator.MoveNext());
             Assert.Equal(enumerator.Current, new Range(0, 0));
             Assert.False(enumerator.MoveNext());
@@ -140,7 +141,7 @@ namespace MiscUtil.Tests
             // Single whitespace buffer
             buffer = " ".AsSpan();
 
-            enumerator = buffer.Split(null); // null is treated as empty string
+            enumerator = buffer.Split(nullString); // null is treated as empty string
             Assert.True(enumerator.MoveNext());
             Assert.Equal(enumerator.Current, new Range(0, 0));
             Assert.True(enumerator.MoveNext());
@@ -236,6 +237,62 @@ namespace MiscUtil.Tests
         {
             char[][] expected = expectedParam.Select(x => x.ToCharArray()).ToArray();
             AssertEqual(expected, valueParam.AsSpan(), valueParam.AsSpan().Split(separator));
+        }
+
+        [Theory]
+        [InlineData("abc_def", '_', "abc", "def")]
+        [InlineData("abc_def_ghi", '_', "abc", "def")]
+        [InlineData("", '_', "", "")]
+        [InlineData("abc_", '_', "abc", "")]
+        public static void SpanSplit2_Char(string input, char separator, string expectFirst, string expectSecond)
+        {
+            var inputSpan = input.AsSpan();
+            var (first, second) = inputSpan.Split2(separator);
+            Assert.Equal(expectFirst, inputSpan[first].ToString());
+            Assert.Equal(expectSecond, inputSpan[second].ToString());
+        }
+
+        [Theory]
+        [InlineData("abc_def", "_", "abc", "def")]
+        [InlineData("abc_def_ghi", "_", "abc", "def")]
+        [InlineData("", "_", "", "")]
+        [InlineData("abc_", "_", "abc", "")]
+        public static void SpanSplit2_String(string input, string separator, string expectFirst, string expectSecond)
+        {
+            var inputSpan = input.AsSpan();
+            var (first, second) = inputSpan.Split2(separator.AsSpan());
+            Assert.Equal(expectFirst, inputSpan[first].ToString());
+            Assert.Equal(expectSecond, inputSpan[second].ToString());
+        }
+
+        [Theory]
+        [InlineData("abc_def", '_', "abc", "def", "")]
+        [InlineData("abc_def_ghi", '_', "abc", "def", "ghi")]
+        [InlineData("abc_def_ghi_jkl", '_', "abc", "def", "ghi")]
+        [InlineData("", '_', "", "", "")]
+        [InlineData("abc_", '_', "abc", "", "")]
+        public static void SpanSplit3_Char(string input, char separator, string expectFirst, string expectSecond, string expectThird)
+        {
+            var inputSpan = input.AsSpan();
+            var (first, second, third) = inputSpan.Split3(separator);
+            Assert.Equal(expectFirst, inputSpan[first].ToString());
+            Assert.Equal(expectSecond, inputSpan[second].ToString());
+            Assert.Equal(expectThird, inputSpan[third].ToString());
+        }
+
+        [Theory]
+        [InlineData("abc_def", "_", "abc", "def", "")]
+        [InlineData("abc_def_ghi", "_", "abc", "def", "ghi")]
+        [InlineData("abc_def_ghi_jkl", "_", "abc", "def", "ghi")]
+        [InlineData("", "_", "", "", "")]
+        [InlineData("abc_", "_", "abc", "", "")]
+        public static void SpanSplit3_String(string input, string separator, string expectFirst, string expectSecond, string expectThird)
+        {
+            var inputSpan = input.AsSpan();
+            var (first, second, third) = inputSpan.Split3(separator.AsSpan());
+            Assert.Equal(expectFirst, inputSpan[first].ToString());
+            Assert.Equal(expectSecond, inputSpan[second].ToString());
+            Assert.Equal(expectThird, inputSpan[third].ToString());
         }
 
         private static void AssertEqual<T>(T[][] items, ReadOnlySpan<T> orig, SpanSplitEnumerator<T> source) where T : IEquatable<T>
