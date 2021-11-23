@@ -96,7 +96,7 @@ public ref struct ValueStringBuilder
 
     public override string ToString()
     {
-        string s = _chars.Slice(0, _pos).ToString();
+        string s = _chars[.._pos].ToString();
         Dispose();
         return s;
     }
@@ -115,18 +115,18 @@ public ref struct ValueStringBuilder
             EnsureCapacity(Length + 1);
             _chars[Length] = '\0';
         }
-        return _chars.Slice(0, _pos);
+        return _chars[.._pos];
     }
 
-    public ReadOnlySpan<char> AsSpan() => _chars.Slice(0, _pos);
-    public ReadOnlySpan<char> AsSpan(int start) => _chars.Slice(start, _pos - start);
+    public ReadOnlySpan<char> AsSpan() => _chars[.._pos];
+    public ReadOnlySpan<char> AsSpan(int start) => _chars[start.._pos];
     public ReadOnlySpan<char> AsSpan(int start, int length) => _chars.Slice(start, length);
 
     public int IndexOf(char searchChar) => AsSpan().IndexOf(searchChar);
 
     public bool TryCopyTo(Span<char> destination, out int charsWritten)
     {
-        if (_chars.Slice(0, _pos).TryCopyTo(destination))
+        if (_chars[.._pos].TryCopyTo(destination))
         {
             charsWritten = _pos;
             Dispose();
@@ -148,7 +148,7 @@ public ref struct ValueStringBuilder
         }
 
         int remaining = _pos - index;
-        _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
+        _chars.Slice(index, remaining).CopyTo(_chars[(index + count)..]);
         _chars.Slice(index, count).Fill(value);
         _pos += count;
     }
@@ -168,8 +168,8 @@ public ref struct ValueStringBuilder
         }
 
         int remaining = _pos - index;
-        _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
-        s.AsSpan().CopyTo(_chars.Slice(index));
+        _chars.Slice(index, remaining).CopyTo(_chars[(index + count)..]);
+        s.AsSpan().CopyTo(_chars[index..]);
         _pos += count;
     }
 
@@ -217,7 +217,7 @@ public ref struct ValueStringBuilder
             Grow(s.Length);
         }
 
-        s.AsSpan().CopyTo(_chars.Slice(pos));
+        s.AsSpan().CopyTo(_chars[pos..]);
         _pos += s.Length;
     }
 
@@ -260,7 +260,7 @@ public ref struct ValueStringBuilder
             Grow(value.Length);
         }
 
-        value.CopyTo(_chars.Slice(_pos));
+        value.CopyTo(_chars[_pos..]);
         _pos += value.Length;
     }
 
@@ -288,7 +288,7 @@ public ref struct ValueStringBuilder
 
     public void Reverse()
     {
-        _chars.Slice(0, _pos).Reverse();
+        _chars[.._pos].Reverse();
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -314,7 +314,7 @@ public ref struct ValueStringBuilder
 
         char[] poolArray = ArrayPool<char>.Shared.Rent(Math.Max(_pos + additionalCapacityBeyondPos, _chars.Length * 2));
 
-        _chars.Slice(0, _pos).CopyTo(poolArray);
+        _chars[.._pos].CopyTo(poolArray);
 
         char[]? toReturn = _arrayToReturnToPool;
         _chars = _arrayToReturnToPool = poolArray;
@@ -329,7 +329,7 @@ public ref struct ValueStringBuilder
     {
         char[]? toReturn = _arrayToReturnToPool;
         this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
-        if (toReturn != null)
+        if (toReturn is not null)
         {
             ArrayPool<char>.Shared.Return(toReturn);
         }
