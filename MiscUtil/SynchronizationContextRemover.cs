@@ -1,40 +1,36 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
-namespace MiscUtil
+namespace MiscUtil;
+
+/// <summary>
+/// This structure is used to remove the current SynchronizationContext. 
+/// This helps to reduce the verbosity of using <see cref="Task.ConfigureAwait"/>.
+/// <code>await new SynchronizationContextRemover();</code> 
+/// ...before awaiting anything else in the same method to remove the need 
+/// for ConfigureAwait.
+/// </summary>
+public readonly struct SynchronizationContextRemover : INotifyCompletion
 {
-    /// <summary>
-    /// This structure is used to remove the current SynchronizationContext. 
-    /// This helps to reduce the verbosity of using <see cref="Task.ConfigureAwait"/>.
-    /// <code>await new SynchronizationContextRemover();</code> 
-    /// ...before awaiting anything else in the same method to remove the need 
-    /// for ConfigureAwait.
-    /// </summary>
-    public readonly struct SynchronizationContextRemover : INotifyCompletion
+    public bool IsCompleted => SynchronizationContext.Current is null;
+
+    void INotifyCompletion.OnCompleted(Action continuation)
     {
-        public bool IsCompleted => SynchronizationContext.Current is null;
+        var previous = SynchronizationContext.Current;
 
-        void INotifyCompletion.OnCompleted(Action continuation)
+        try
         {
-            var previous = SynchronizationContext.Current;
-
-            try
-            {
-                SynchronizationContext.SetSynchronizationContext(null);
-                continuation();
-            }
-            finally
-            {
-                SynchronizationContext.SetSynchronizationContext(previous);
-            }
+            SynchronizationContext.SetSynchronizationContext(null);
+            continuation();
         }
-
-        public SynchronizationContextRemover GetAwaiter() => this;
-
-        public void GetResult()
+        finally
         {
+            SynchronizationContext.SetSynchronizationContext(previous);
         }
+    }
+
+    public SynchronizationContextRemover GetAwaiter() => this;
+
+    public void GetResult()
+    {
     }
 }

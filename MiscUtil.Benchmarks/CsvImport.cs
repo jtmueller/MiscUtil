@@ -1,88 +1,87 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System;
 using System.Diagnostics;
 
-namespace MiscUtil.Benchmarks
+namespace MiscUtil.Benchmarks;
+
+[Config(typeof(BenchmarkConfig))]
+public class CsvImport
 {
-    [Config(typeof(BenchmarkConfig))]
-    public class CsvImport
+    private const string newLine = "\r\n";
+
+    [Benchmark(Baseline = true)]
+    public void SumDataStrings()
     {
-        private const string newLine = "\r\n";
+        int unitsSold = 0;
+        double totalRevenue = 0.0;
+        double totalCost = 0.0;
 
-        [Benchmark(Baseline = true)]
-        public void SumDataStrings()
+        int lineNum = 0;
+        foreach (var line in s_lines.Split(newLine.ToCharArray(), StringSplitOptions.None))
         {
-            int unitsSold = 0;
-            double totalRevenue = 0.0;
-            double totalCost = 0.0;
+            if (lineNum++ == 0)
+                continue;
 
-            int lineNum = 0;
-            foreach (var line in s_lines.Split(newLine.ToCharArray(), StringSplitOptions.None))
+            int col = 0;
+            foreach (var part in line.Split(','))
             {
-                if (lineNum++ == 0)
-                    continue;
-
-                int col = 0;
-                foreach (var part in line.Split(','))
+                switch (col++)
                 {
-                    switch (col++)
-                    {
-                        case 8:
-                            unitsSold += part.ToInt32().GetValueOrDefault();
-                            break;
-                        case 11:
-                            totalRevenue += part.ToDouble().GetValueOrDefault();
-                            break;
-                        case 12:
-                            totalCost += part.ToDouble().GetValueOrDefault();
-                            break;
-                    }
+                    case 8:
+                        unitsSold += part.ToInt32().GetValueOrDefault();
+                        break;
+                    case 11:
+                        totalRevenue += part.ToDouble().GetValueOrDefault();
+                        break;
+                    case 12:
+                        totalCost += part.ToDouble().GetValueOrDefault();
+                        break;
                 }
             }
-
-            Debug.WriteLine("Units: {0}, Revenue: {1}, Cost: {2}", unitsSold, totalRevenue, totalCost);
         }
 
-        [Benchmark]
-        public void SumDataSpans()
+        Debug.WriteLine("Units: {0}, Revenue: {1}, Cost: {2}", unitsSold, totalRevenue, totalCost);
+    }
+
+    [Benchmark]
+    public void SumDataSpans()
+    {
+        int unitsSold = 0;
+        double totalRevenue = 0.0;
+        double totalCost = 0.0;
+
+        var lines = s_lines.AsSpan();
+        int lineNum = 0;
+        foreach (var lr in lines.Split(newLine))
         {
-            int unitsSold = 0;
-            double totalRevenue = 0.0;
-            double totalCost = 0.0;
+            if (lineNum++ == 0)
+                continue;
 
-            var lines = s_lines.AsSpan();
-            int lineNum = 0;
-            foreach (var lr in lines.Split(newLine))
+            var line = lines[lr];
+
+            int col = 0;
+            foreach (var pr in line.Split(','))
             {
-                if (lineNum++ == 0)
-                    continue;
-
-                var line = lines[lr];
-
-                int col = 0;
-                foreach (var pr in line.Split(','))
+                var part = line[pr];
+                switch (col++)
                 {
-                    var part = line[pr];
-                    switch (col++)
-                    {
-                        case 8:
-                            unitsSold += part.ToInt32().GetValueOrDefault();
-                            break;
-                        case 11:
-                            totalRevenue += part.ToDouble().GetValueOrDefault();
-                            break;
-                        case 12:
-                            totalCost += part.ToDouble().GetValueOrDefault();
-                            break;
-                    }
+                    case 8:
+                        unitsSold += part.ToInt32().GetValueOrDefault();
+                        break;
+                    case 11:
+                        totalRevenue += part.ToDouble().GetValueOrDefault();
+                        break;
+                    case 12:
+                        totalCost += part.ToDouble().GetValueOrDefault();
+                        break;
                 }
             }
-
-            Debug.WriteLine("Units: {0}, Revenue: {1}, Cost: {2}", unitsSold, totalRevenue, totalCost);
         }
 
-        #region CSV Literal
-        private const string s_lines =
+        Debug.WriteLine("Units: {0}, Revenue: {1}, Cost: {2}", unitsSold, totalRevenue, totalCost);
+    }
+
+    #region CSV Literal
+    private const string s_lines =
 @"Region,Country,Item Type,Sales Channel,Order Priority,Order Date,Order ID,Ship Date,Units Sold,Unit Price,Unit Cost,Total Revenue,Total Cost,Total Profit
 Middle East and North Africa,Libya,Cosmetics,Offline,M,10/18/2014,686800706,10/31/2014,8446,437.20,263.33,3692591.20,2224085.18,1468506.02
 North America,Canada,Vegetables,Online,M,11/7/2011,185941302,12/8/2011,3018,154.06,90.93,464953.08,274426.74,190526.34
@@ -1084,6 +1083,5 @@ Europe,Georgia,Baby Food,Offline,H,8/1/2011,590768182,9/7/2011,288,255.28,159.42
 Middle East and North Africa,United Arab Emirates,Vegetables,Online,C,5/12/2011,524363124,6/28/2011,9556,154.06,90.93,1472197.36,868927.08,603270.28
 Europe,Finland,Household,Offline,L,1/25/2016,289606320,2/14/2016,9801,668.27,502.54,6549714.27,4925394.54,1624319.73
 Europe,Portugal,Cereal,Offline,C,4/10/2014,811546599,5/8/2014,3528,205.70,117.11,725709.60,413164.08,312545.52";
-        #endregion
-    }
+    #endregion
 }
