@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace MiscUtil.Tests;
 
 public class SpanSplitExtensionsTests

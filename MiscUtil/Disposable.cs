@@ -2,9 +2,9 @@
 
 public static class Disposable
 {
-    public static IDisposable Create(Action onDispose) => new DisposeScope(onDispose);
+    public static DisposeScope Create(Action onDispose) => new(onDispose);
 
-    private sealed class DisposeScope : IDisposable
+    public ref struct DisposeScope
     {
         private Action? _onDispose;
 
@@ -18,9 +18,9 @@ public static class Disposable
 
 public static class AsyncDisposable
 {
-    public static IAsyncDisposable Create(Func<ValueTask> onDispose) => new AsyncDisposeScope(onDispose);
+    public static AsyncDisposeScope Create(Func<ValueTask> onDispose) => new(onDispose);
 
-    private sealed class AsyncDisposeScope : IAsyncDisposable
+    public struct AsyncDisposeScope
     {
         private Func<ValueTask>? _onDispose;
 

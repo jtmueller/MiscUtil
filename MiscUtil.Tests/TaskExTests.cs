@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace MiscUtil.Tests;
+﻿namespace MiscUtil.Tests;
 
 public class TaskExTests
 {
