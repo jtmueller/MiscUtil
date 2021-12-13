@@ -8,6 +8,7 @@ public class DisposeTests
         bool disposed = false;
         using (var sut = Disposable.Create(() => { disposed = true; }))
         {
+            Assert.False(disposed);
         }
         Assert.True(disposed);
     }
@@ -19,6 +20,7 @@ public class DisposeTests
         bool disposed = false;
         await using (var sut = AsyncDisposable.Create(async () => { await Task.Yield(); disposed = true; }))
         {
+            Assert.False(disposed);
         }
         Assert.True(disposed);
     }
