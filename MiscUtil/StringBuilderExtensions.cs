@@ -280,7 +280,7 @@ public static class StringBuilderExtensions
     public static StringBuilder Append(this StringBuilder sb, ReadOnlyMemory<char> chars)
         => sb.Append(chars.Span);
 
-#if NETSTANDARD2_1
+#if !NETSTANDARD2_0
         /// <summary>
         ///     Removes the given <see cref="Range"/> of characters from the StringBuilder.
         /// </summary>
