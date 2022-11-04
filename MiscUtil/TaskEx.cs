@@ -1,6 +1,6 @@
 ﻿namespace MiscUtil;
 
-public static class TaskEx
+public static partial class TaskEx
 {
     /// <summary>
     /// Creates a task that will complete when all of the supplied tasks have completed. Does not require

@@ -8,7 +8,7 @@ public static class Disposable
     {
         private Action? _onDispose;
 
-        public DisposeScope(Action onDispose) { _onDispose = onDispose; }
+        public DisposeScope(Action onDispose) => _onDispose = onDispose;
 
         public void Dispose() => Interlocked.Exchange(ref _onDispose, null)?.Invoke();
     }
@@ -24,7 +24,7 @@ public static class AsyncDisposable
     {
         private Func<ValueTask>? _onDispose;
 
-        public AsyncDisposeScope(Func<ValueTask> onDispose) { _onDispose = onDispose; }
+        public AsyncDisposeScope(Func<ValueTask> onDispose) => _onDispose = onDispose;
 
         public ValueTask DisposeAsync() => Interlocked.Exchange(ref _onDispose, null)?.Invoke() ?? ValueTask.CompletedTask;
     }
