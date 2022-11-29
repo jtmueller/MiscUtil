@@ -14,7 +14,7 @@ public static class Disposable
     }
 }
 
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
 
 public static class AsyncDisposable
 {

@@ -13,7 +13,7 @@ public class DisposeTests
         Assert.True(disposed);
     }
 
-#if NET6_0
+#if NET6_0_OR_GREATER
     [Fact]
     public async Task CanDisposeAsync()
     {
