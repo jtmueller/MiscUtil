@@ -1,6 +1,5 @@
 ﻿#if NET6_0_OR_GREATER
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -91,7 +90,7 @@ public static class ResultExtensions
             ? onOk(value)
             : result.IsErr(out var error)
                 ? onErr(error)
-                : throw new UnreachableException();
+                : throw new InvalidOperationException("Result not in valid state.");
     }
 
     public static Result<U, UErr> Bind<T, TErr, U, UErr>(this Result<T, TErr> result,
@@ -103,7 +102,7 @@ public static class ResultExtensions
             ? okBinder(value)
             : result.IsErr(out var error)
                 ? errBinder(error)
-                : throw new UnreachableException();
+                : throw new InvalidOperationException("Result not in valid state.");
     }
 
     public static Result<U, TErr> Map<T, TErr, U>(this Result<T, TErr> result, Func<T, U> mapper)
@@ -113,7 +112,7 @@ public static class ResultExtensions
             ? Result<U, TErr>.Ok(mapper(value))
             : result.IsErr(out var error)
                 ? Result<U, TErr>.Err(error)
-                : throw new UnreachableException();
+                : throw new InvalidOperationException("Result not in valid state.");
     }
 
     public static Result<T, UErr> MapErr<T, TErr, UErr>(this Result<T, TErr> result, Func<TErr, UErr> errMapper)
@@ -123,7 +122,7 @@ public static class ResultExtensions
             ? Result<T, UErr>.Err(errMapper(error))
             : result.IsOk(out var value)
                 ? Result<T, UErr>.Ok(value)
-                : throw new UnreachableException();
+                : throw new InvalidOperationException("Result not in valid state.");
     }
 }
 
