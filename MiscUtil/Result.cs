@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
@@ -15,7 +16,7 @@ public readonly struct Result<T, TErr>
 
     private Result(T value)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        ThrowIfNull(value);
         _value = value;
         _err = default!;
         _isOk = true;
@@ -23,7 +24,7 @@ public readonly struct Result<T, TErr>
 
     private Result(TErr error)
     {
-        ArgumentNullException.ThrowIfNull(error);
+        ThrowIfNull(error);
         _err = error;
         _value = default!;
         _isOk = false;

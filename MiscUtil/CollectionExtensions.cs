@@ -1,6 +1,5 @@
 ﻿#if NET6_0_OR_GREATER
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using static System.ArgumentNullException;
 
@@ -166,7 +165,6 @@ public static class CollectionExtensions
     /// <typeparam name="T">The element type.</typeparam>
     /// <param name="thisList">The list.</param>
     /// <param name="match">The predicate function that returns true for each item that should be removed.</param>
-    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000:Keywords should be spaced correctly", Justification = "They are spaced correctly.")]
     public static void RemoveAll<T>(this IList<T> thisList, Predicate<T> match)
     {
         ThrowIfNull(match);
