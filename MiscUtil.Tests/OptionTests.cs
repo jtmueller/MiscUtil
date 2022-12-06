@@ -68,6 +68,46 @@ public class OptionTests
         Assert.Equal("42", str);
         Assert.True(noneResult.IsNone);
     }
+
+    [Fact]
+    public void CanGetSpan()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        var someSpan = someInt.AsSpan();
+        var noneSpan = noneInt.AsSpan();
+
+        Assert.False(someSpan.IsEmpty);
+        Assert.True(noneSpan.IsEmpty);
+
+        Assert.Equal(1, someSpan.Length);
+        Assert.Equal(0, noneSpan.Length);
+
+        Assert.Equal(42, someSpan[0]);
+    }
+
+    [Fact]
+    public void CanEnumerate()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        int value = 0;
+        foreach (var x in noneInt)
+        {
+            value += x;
+        }
+
+        Assert.Equal(0, value);
+
+        foreach (var x in someInt)
+        {
+            value += x;
+        }
+
+        Assert.Equal(42, value);
+    }
 }
 
 #endif
