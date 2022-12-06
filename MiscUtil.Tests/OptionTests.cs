@@ -35,7 +35,7 @@ public class OptionTests
     [Fact]
     public void CanMatchOnNone()
     {
-        var opt = Option<int>.None;
+        var opt = Option.None<int>();
         var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
         Assert.Equal(-1, result);
     }

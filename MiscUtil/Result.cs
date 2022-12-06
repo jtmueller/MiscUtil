@@ -103,6 +103,30 @@ public static class Result
             _ => throw new InvalidOperationException("Either the value or the error must be non-null.")
         };
     }
+
+    public static Result<T, TErr> Create<T, TErr>(T? value, Func<TErr> errorFactory)
+        where T : notnull where TErr : notnull
+    {
+        ThrowIfNull(errorFactory);
+
+        return value is null 
+            ? Result<T, TErr>.Err(errorFactory()) 
+            : Result<T, TErr>.Ok(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<T, TErr> Ok<T, TErr>(T value)
+        where T : notnull where TErr : notnull
+    {
+        return Result<T, TErr>.Ok(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<T, TErr> Err<T, TErr>(TErr error)
+        where T : notnull where TErr : notnull
+    {
+        return Result<T, TErr>.Err(error);
+    }
 }
 
 // TODO: useful methods from https://doc.rust-lang.org/std/result/

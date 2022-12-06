@@ -189,6 +189,12 @@ public static class Option
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Some<T>(T value) where T : notnull => Option<T>.Some(value);
 
+    /// <summary>
+    /// Returns the <c>None</c> option for the specified <typeparamref name="T"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> None<T>() where T : notnull => default;
+
 #if NET7_0_OR_GREATER
 
     /// <summary>
