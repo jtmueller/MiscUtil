@@ -245,6 +245,20 @@ public class OptionTests
         Assert.True(buffer[..written].SequenceEqual("Some(4,200.00)"));
     }
 
+    [Fact]
+    public void CanFlatten()
+    {
+        var someInt = Option.Some(Option.Some(42));
+        var noneIntOuter = Option<Option<int>>.None;
+        var noneIntInner = Option.Some(Option<int>.None);
+        var someThreeLevels = Option.Some(Option.Some(Option.Some(42)));
+
+        Assert.Equal(Option.Some(42), someInt.Flatten());
+        Assert.Equal(Option<int>.None, noneIntOuter.Flatten());
+        Assert.Equal(Option<int>.None, noneIntInner.Flatten());
+        Assert.Equal(someInt, someThreeLevels.Flatten());
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]

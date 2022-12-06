@@ -415,4 +415,16 @@ public static class OptionExtensions
 
         return Result<Option<T>, TErr>.Ok(Option<T>.None);
     }
+
+    /// <summary>
+    /// Removes one level of nesting from nested options.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="option">The nested option to flatten.</param>
+    /// <returns>The given option with one level of nesting removed.</returns>
+    public static Option<T> Flatten<T>(this Option<Option<T>> option)
+        where T : notnull
+    {
+        return option.IsSome(out var nested) ? nested : Option<T>.None;
+    }
 }
