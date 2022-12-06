@@ -1,6 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-
-namespace MiscUtil.Tests;
+﻿namespace MiscUtil.Tests;
 
 using Xunit;
 
@@ -145,5 +143,3 @@ public class OptionTests
 
 #endif
 }
-
-#endif
