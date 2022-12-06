@@ -1,6 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using static System.ArgumentNullException;
 
 namespace MiscUtil;
@@ -192,5 +190,3 @@ public static class CollectionExtensions
         }
     }
 }
-
-#endif

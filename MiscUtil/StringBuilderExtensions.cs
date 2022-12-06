@@ -224,52 +224,6 @@ public static class StringBuilderExtensions
         return sb;
     }
 
-#if NETSTANDARD2_0
-    /// <summary>
-    ///     Appends the characters in the specified <see cref="ReadOnlySpan{char}"/> to this instance.
-    /// </summary>
-    public static StringBuilder Append(this StringBuilder sb, ReadOnlySpan<char> chars)
-    {
-        if (sb is null)
-            throw new ArgumentNullException(nameof(sb));
-        if (chars.IsEmpty)
-            return sb;
-
-        int startIndex = sb.Length;
-        sb.Length += chars.Length;
-        for (int i = 0, len = chars.Length; i < len; i++)
-        {
-            sb[startIndex + i] = chars[i];
-        }
-
-        return sb;
-    }
-
-    /// <summary>
-    /// Copies the characters from a specified segment of this instance to the destination span.
-    /// </summary>
-    /// <param name="sb">The <see cref="StringBuilder"/></param>
-    /// <param name="sourceIndex">The index within the StringBuilder at which to start counting.</param>
-    /// <param name="destination">The span to copy characters into.</param>
-    /// <param name="count">The number of characters to copy.</param>
-    public static void CopyTo(this StringBuilder sb, int sourceIndex, Span<char> destination, int count)
-    {
-        if (sb is null)
-            throw new ArgumentNullException(nameof(sb));
-        if ((uint)sourceIndex >= (uint)sb.Length)
-            throw new ArgumentOutOfRangeException(nameof(sourceIndex));
-        if (sourceIndex + count > sb.Length)
-            throw new ArgumentOutOfRangeException(nameof(count));
-        if (count > destination.Length)
-            throw new ArgumentException("Destination too small.");
-
-        for (int i = 0; i < count; i++)
-        {
-            destination[i] = sb[sourceIndex + i];
-        }
-    }
-#endif
-
     /// <summary>
     ///     Appends the characters in the specified <see cref="ReadOnlyMemory{char}"/> to this instance.
     /// </summary>
@@ -280,15 +234,13 @@ public static class StringBuilderExtensions
     public static StringBuilder Append(this StringBuilder sb, ReadOnlyMemory<char> chars)
         => sb.Append(chars.Span);
 
-#if !NETSTANDARD2_0
-        /// <summary>
-        ///     Removes the given <see cref="Range"/> of characters from the StringBuilder.
-        /// </summary>
-        public static StringBuilder Remove(this StringBuilder sb, Range range)
-        {
-            var (offset, length) = range.GetOffsetAndLength(sb.Length);
-            sb.Remove(offset, length);
-            return sb;
-        }
-#endif
+    /// <summary>
+    ///     Removes the given <see cref="Range"/> of characters from the StringBuilder.
+    /// </summary>
+    public static StringBuilder Remove(this StringBuilder sb, Range range)
+    {
+        var (offset, length) = range.GetOffsetAndLength(sb.Length);
+        sb.Remove(offset, length);
+        return sb;
+    }
 }

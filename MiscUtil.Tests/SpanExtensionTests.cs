@@ -124,12 +124,7 @@ public class SpanExtensionTests
 
     public static IEnumerable<object?[]> DateTimeData()
     {
-        // Utf8Parser only supports these formats:
-#if NET48
-        foreach (var f in new[] { "G", "O", "R" })
-#else
-            foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "O", "R", "s", "t", "T", "u", "U", "y" })
-#endif
+        foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "O", "R", "s", "t", "T", "u", "U", "y" })
         {
             var ds = DateTime.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
             yield return new object?[] { ds, f[0], DateTime.ParseExact(ds, f, CultureInfo.InvariantCulture) };
@@ -149,12 +144,7 @@ public class SpanExtensionTests
 
     public static IEnumerable<object?[]> DateTimeOffsetData()
     {
-        // Utf8Parser only supports these formats:
-#if NET48
-        foreach (var f in new[] { "G", "R" })
-#else
-            foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "R", "s", "t", "T", "u", "y" })
-#endif
+        foreach (var f in new[] { "d", "D", "f", "F", "g", "G", "M", "R", "s", "t", "T", "u", "y" })
         {
             var ds = DateTimeOffset.Now.ToString(f, CultureInfo.InvariantCulture); // the only culture supported by Utf8Parser
             yield return new object?[] { ds, f[0], DateTimeOffset.ParseExact(ds, f, CultureInfo.InvariantCulture) };

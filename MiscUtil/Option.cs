@@ -1,6 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-
-namespace MiscUtil;
+﻿namespace MiscUtil;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -102,5 +100,3 @@ public static class OptionExtensions
             : Option<U>.None;
     }
 }
-
-#endif

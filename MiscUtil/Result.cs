@@ -1,6 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static System.ArgumentNullException;
@@ -126,5 +124,3 @@ public static class ResultExtensions
                 : throw new InvalidOperationException("Result not in valid state.");
     }
 }
-
-#endif

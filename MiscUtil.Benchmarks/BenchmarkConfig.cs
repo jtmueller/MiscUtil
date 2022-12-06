@@ -13,10 +13,12 @@ internal class BenchmarkConfig : ManualConfig
         AddJob(Job.Default
             .WithRuntime(CoreRuntime.Core60)
             .WithPlatform(Platform.X64)
+            //.WithPlatform(Platform.Arm64)
             .WithJit(Jit.RyuJit));
         AddJob(Job.Default
-            .WithRuntime(ClrRuntime.Net48)
+            .WithRuntime(CoreRuntime.Core70)
             .WithPlatform(Platform.X64)
+            //.WithPlatform(Platform.Arm64)
             .WithJit(Jit.RyuJit));
         AddDiagnoser(MemoryDiagnoser.Default);
         //AddExporter(CsvMeasurementsExporter.Default);

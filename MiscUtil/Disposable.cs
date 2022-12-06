@@ -14,8 +14,6 @@ public static class Disposable
     }
 }
 
-#if NET6_0_OR_GREATER
-
 public static class AsyncDisposable
 {
     public static AsyncDisposeScope Create(Func<ValueTask> onDispose) => new(onDispose);
@@ -29,5 +27,3 @@ public static class AsyncDisposable
         public ValueTask DisposeAsync() => Interlocked.Exchange(ref _onDispose, null)?.Invoke() ?? ValueTask.CompletedTask;
     }
 }
-
-#endif
