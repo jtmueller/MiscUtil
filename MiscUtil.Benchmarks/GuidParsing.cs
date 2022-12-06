@@ -10,7 +10,7 @@ public class GuidParsing
     {
         for (int i = 0; i < _toParse.Length; i++)
         {
-            Guid.TryParse(_toParse[i], out _);
+            _ = Guid.TryParse(_toParse[i], out _);
         }
     }
 
@@ -19,9 +19,22 @@ public class GuidParsing
     {
         for (int i = 0; i < _toParse.Length; i++)
         {
-            _toParse[i].AsSpan().ToGuid();
+            _ = _toParse[i].AsSpan().ToGuid();
         }
     }
+
+#if NET7_0_OR_GREATER
+
+    [Benchmark]
+    public void GuidOptionParse()
+    {
+        for (int i = 0; i < _toParse.Length; i++)
+        {
+            _ = Option.Parse<Guid>(_toParse[i]);
+        }
+    }
+
+#endif
 
     private string[] _toParse;
 

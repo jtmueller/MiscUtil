@@ -10,7 +10,7 @@ public class DecimalParsing
     {
         for (int i = 0; i < _toParse.Length; i++)
         {
-            double.TryParse(_toParse[i], out _);
+            _ = double.TryParse(_toParse[i], out _);
         }
     }
 
@@ -19,9 +19,22 @@ public class DecimalParsing
     {
         for (int i = 0; i < _toParse.Length; i++)
         {
-            _toParse[i].AsSpan().ToDecimal();
+            _ = _toParse[i].AsSpan().ToDecimal();
         }
     }
+
+#if NET7_0_OR_GREATER
+
+    [Benchmark]
+    public void DecimalOptionParse()
+    {
+        for (int i = 0; i < _toParse.Length; i++)
+        {
+            _ = Option.Parse<decimal>(_toParse[i]);
+        }
+    }
+
+#endif
 
     private string[] _toParse;
     private const int s_rand_seed = 1046527;

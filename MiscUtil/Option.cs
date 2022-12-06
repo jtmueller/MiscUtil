@@ -49,6 +49,7 @@ public static class Option
 
 #if NET7_0_OR_GREATER
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Parse<T>(string s, IFormatProvider? provider = null)
         where T : IParsable<T>
     {
@@ -57,6 +58,7 @@ public static class Option
             : Option<T>.None;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Parse<T>(ReadOnlySpan<char> s, IFormatProvider? provider = null)
         where T : ISpanParsable<T>
     {
