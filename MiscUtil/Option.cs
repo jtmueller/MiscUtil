@@ -4,12 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using static System.ArgumentNullException;
+using System.Globalization;
 
 /// <summary>
 /// <see cref="Option{T}"/> represents an optional value: every <see cref="Option{T}"/> is either <c>Some</c> and contains a value, or <c>None</c>, and does not. 
 /// </summary>
 /// <typeparam name="T">The type the opton might contain.</typeparam>
-public readonly struct Option<T> : IEquatable<Option<T>>
+public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
     where T : notnull
 {
     /// <summary>
@@ -93,6 +94,73 @@ public readonly struct Option<T> : IEquatable<Option<T>>
 
     /// <inheritdoc />
     public override int GetHashCode() => _isSome ? _value.GetHashCode() : 0;
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return _isSome 
+            ? string.Create(CultureInfo.InvariantCulture, $"Some({_value})") 
+            : "None";
+    }
+
+    /// <inheritdoc />
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (_isSome)
+        {
+            if (_value is ISpanFormattable fmt)
+            {
+                if ("Some(".AsSpan().TryCopyTo(destination))
+                {
+                    var remainingDest = destination[5..];
+                    if (fmt.TryFormat(remainingDest, out var innerWritten, format, provider))
+                    {
+                        remainingDest = remainingDest[innerWritten..];
+                        if (remainingDest.Length >= 1)
+                        {
+                            remainingDest[0] = ')';
+                            charsWritten = innerWritten + 6;
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    var output = format.IsEmpty
+                        ? string.Create(provider, $"Some({_value})")
+                        : string.Format(provider, $"Some({{0:{format}}})", _value);
+
+                    if (output.AsSpan().TryCopyTo(destination))
+                    {
+                        charsWritten = output.Length;
+                        return true;
+                    }
+                }
+            }
+
+            charsWritten = 0;
+            return false;
+        }
+
+        if ("None".AsSpan().TryCopyTo(destination))
+        {
+            charsWritten = 4;
+            return true;
+        }
+
+        charsWritten = 0;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        return _isSome
+            ? string.IsNullOrEmpty(format)
+                ? string.Create(formatProvider, $"Some({_value})")
+                : string.Format(formatProvider, "Some({0:" + format + "})", _value)
+            : "None";
+    }
 
     /// <inheritdoc />
     public static bool operator ==(Option<T> left, Option<T> right)

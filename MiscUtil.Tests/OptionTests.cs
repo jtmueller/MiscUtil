@@ -1,5 +1,6 @@
 ﻿namespace MiscUtil.Tests;
 
+using System.Globalization;
 using Xunit;
 
 public class OptionTests
@@ -161,7 +162,7 @@ public class OptionTests
         Assert.NotEqual(someInt, someOtherInt);
 
         Assert.True(someInt == someSameInt);
-        Assert.False(someInt == noneInt);
+        Assert.True(someInt != noneInt);
         Assert.False(someInt == someOtherInt);
 
         Assert.True(((object)someInt).Equals(someSameInt));
@@ -213,6 +214,35 @@ public class OptionTests
         Assert.Equal(someOkExpected, someOkTest.Transpose());
         Assert.Equal(someErrExpected, someErrTest.Transpose());
         Assert.Equal(noneExpected, noneTest.Transpose());
+    }
+
+    [Fact]
+    public void CanGetString()
+    {
+        var someInt = Option.Some(4200);
+        var noneInt = Option<int>.None;
+
+        Assert.Equal("Some(4200)", someInt.ToString());
+        Assert.Equal("None", noneInt.ToString());
+        Assert.Equal("Some(4,200.00)", someInt.ToString("n2", CultureInfo.InvariantCulture));
+    }
+
+    [Fact]
+    public void CanFormatToSpan()
+    {
+        var someInt = Option.Some(4200);
+        var noneInt = Option<int>.None;
+
+        Span<char> buffer = stackalloc char[255];
+
+        Assert.True(someInt.TryFormat(buffer, out int written, "", CultureInfo.InvariantCulture));
+        Assert.True(buffer[..written].SequenceEqual("Some(4200)"));
+
+        Assert.True(noneInt.TryFormat(buffer, out written, "", CultureInfo.InvariantCulture));
+        Assert.True(buffer[..written].SequenceEqual("None"));
+
+        Assert.True(someInt.TryFormat(buffer, out written, "n2", CultureInfo.InvariantCulture));
+        Assert.True(buffer[..written].SequenceEqual("Some(4,200.00)"));
     }
 
 #if NET7_0_OR_GREATER
