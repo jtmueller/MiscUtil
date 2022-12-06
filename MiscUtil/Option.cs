@@ -20,6 +20,8 @@ public readonly struct Option<T> where T : notnull
         _isSome = value is not null;
     }
 
+    public bool IsNone => !_isSome;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSome([MaybeNullWhen(false)] out T value)
     {
@@ -30,12 +32,9 @@ public readonly struct Option<T> where T : notnull
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<T> AsSpan()
     {
-        if (_isSome)
-        {
-            return MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in _value), 1);
-        }
-
-        return ReadOnlySpan<T>.Empty;
+        return _isSome
+            ? MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in _value), 1)
+            : ReadOnlySpan<T>.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,6 +52,9 @@ public static class Option
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/enum.Option.html
 // expect, map_or, ok_or, and, or, xor, filter, zip, transpose, flatten
+
+// Also a .Some() extension method on any type
+// Also a "bind to try method" option like Genix?
 
 public static class OptionExtensions
 {
