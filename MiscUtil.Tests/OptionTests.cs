@@ -173,6 +173,32 @@ public class OptionTests
         Assert.NotEqual(someInt.GetHashCode(), someOtherInt.GetHashCode());
     }
 
+    [Fact]
+    public void CanTransformToResultVal()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        var someResult = someInt.OkOr("No value found!");
+        var noneResult = noneInt.OkOr("No value found!");
+
+        Assert.True(someResult.IsOk(out var value) && value == 42);
+        Assert.True(noneResult.IsErr(out var err) && err == "No value found!");
+    }
+
+    [Fact]
+    public void CanTransformToResultFunc()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        var someResult = someInt.OkOrElse(() => "No value found!");
+        var noneResult = noneInt.OkOrElse(() => "No value found!");
+
+        Assert.True(someResult.IsOk(out var value) && value == 42);
+        Assert.True(noneResult.IsErr(out var err) && err == "No value found!");
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]

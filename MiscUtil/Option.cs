@@ -278,4 +278,42 @@ public static class OptionExtensions
         return option.IsSome(out var value)
             ? value : defaultFactory();
     }
+
+    /// <summary>
+    /// Transforms the <see cref="Option{T}"/> into a <see cref="Result{T,TErr}"/>,
+    /// mapping <c>Some</c> to <c>Ok</c> and <c>None</c> to <c>Err</c> using the provided
+    /// <paramref name="error"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the option's value.</typeparam>
+    /// <typeparam name="TErr">The type of the error.</typeparam>
+    /// <param name="option">The option to transform.</param>
+    /// <param name="error">The error to use if the option is <c>None</c>.</param>
+    /// <returns>A <see cref="Result{T,TErr}"/> that contains either the option's value, or the provided error.</returns>
+    public static Result<T, TErr> OkOr<T, TErr>(this Option<T> option, TErr error)
+        where T : notnull where TErr : notnull
+    {
+        return option.IsSome(out var value)
+            ? Result<T, TErr>.Ok(value)
+            : Result<T, TErr>.Err(error);
+    }
+
+    /// <summary>
+    /// Transforms the <see cref="Option{T}"/> into a <see cref="Result{T,TErr}"/>,
+    /// mapping <c>Some</c> to <c>Ok</c> and <c>None</c> to <c>Err</c> using the provided
+    /// <paramref name="errorFactory"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the option's value.</typeparam>
+    /// <typeparam name="TErr">The type of the error.</typeparam>
+    /// <param name="option">The option to transform.</param>
+    /// <param name="errorFactory">A function that creates an error object to be used if the option is <c>None</c>.</param>
+    /// <returns>A <see cref="Result{T,TErr}"/> that contains either the option's value, or the provided error.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="errorFactory"/> is null.</exception>
+    public static Result<T, TErr> OkOrElse<T, TErr>(this Option<T> option, Func<TErr> errorFactory)
+        where T : notnull where TErr : notnull
+    {
+        ThrowIfNull(errorFactory);
+        return option.IsSome(out var value)
+            ? Result<T, TErr>.Ok(value)
+            : Result<T, TErr>.Err(errorFactory());
+    }
 }
