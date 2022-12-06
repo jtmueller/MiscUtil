@@ -254,7 +254,7 @@ public static class OptionExtensions
     /// <param name="option">The option to match on.</param>
     /// <param name="onSome">The match function that will be executed for a <c>Some</c> value.</param>
     /// <param name="onNone">The match function that will be executed for a <c>None</c> value.</param>
-    /// <returns>Returns the value given by the chosen match function.</returns>
+    /// <returns>The value given by the chosen match function.</returns>
     public static U Match<T, U>(this Option<T> option,
                                 Func<T, U> onSome,
                                 Func<U> onNone)
@@ -431,5 +431,27 @@ public static class OptionExtensions
         where T : notnull
     {
         return option.IsSome(out var nested) ? nested : Option<T>.None;
+    }
+
+    /// <summary>
+    /// Returns <c>None</c> if the option is <c>None</c>, otherwise calls <paramref name="predicate"/>
+    /// and returns <c>Some</c> if the predicated returns <c>true</c>, otherwise <c>None</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="option">The option to check.</param>
+    /// <param name="predicate">The function that determines if the value in the option is valid to return.</param>
+    /// <returns><c>Some</c> if the option is <c>Some</c> and the predicate returns <c>true</c>, otherwise <c>None</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="predicate"/> is null.</exception>
+    public static Option<T> Filter<T>(this Option<T> option, Func<T, bool> predicate)
+        where T : notnull
+    {
+        ThrowIfNull(predicate);
+
+        if (option.IsSome(out var value) && predicate(value))
+        {
+            return option;
+        }
+
+        return Option<T>.None;
     }
 }

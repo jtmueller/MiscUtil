@@ -259,6 +259,18 @@ public class OptionTests
         Assert.Equal(someInt, someThreeLevels.Flatten());
     }
 
+    [Fact]
+    public void CanFilter()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+        var someOtherInt = Option.Some(43);
+
+        Assert.Equal(someInt, someInt.Filter(x => x % 2 == 0));
+        Assert.Equal(noneInt, noneInt.Filter(x => x % 2 == 0));
+        Assert.Equal(noneInt, someOtherInt.Filter(x => x % 2 == 0));
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]
