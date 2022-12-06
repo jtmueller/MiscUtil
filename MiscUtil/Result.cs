@@ -78,6 +78,7 @@ public static class Result
 
 // TODO: useful methods from https://doc.rust-lang.org/std/result/
 // expect, err, ok, transpose, unwrap_or, map_or, and, or
+// Also a .Ok() extension method on any type?
 
 public static class ResultExtensions
 {

@@ -48,12 +48,32 @@ public static class Option
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Some<T>(T value) where T : notnull => Option<T>.Some(value);
+
+#if NET7_0_OR_GREATER
+
+    public static Option<T> Parse<T>(string s, IFormatProvider? provider = null)
+        where T : IParsable<T>
+    {
+        return T.TryParse(s, provider, out var value)
+            ? Option<T>.Some(value)
+            : Option<T>.None;
+    }
+
+    public static Option<T> Parse<T>(ReadOnlySpan<char> s, IFormatProvider? provider = null)
+        where T : ISpanParsable<T>
+    {
+        return T.TryParse(s, provider, out var value)
+            ? Option<T>.Some(value)
+            : Option<T>.None;
+    }
+
+#endif
 }
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/enum.Option.html
 // expect, map_or, ok_or, and, or, xor, filter, zip, transpose, flatten
 
-// Also a .Some() extension method on any type
+// Also a .Some() extension method on any type?
 // Also a "bind to try method" option like Genix?
 
 public static class OptionExtensions

@@ -29,7 +29,7 @@ public class OptionTests
     public void CanMatchOnSome()
     {
         var opt = Option.Some(42);
-        var result = opt.Match(x => x * 2, () => -1);
+        var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
         Assert.Equal(84, result);
     }
 
@@ -37,7 +37,7 @@ public class OptionTests
     public void CanMatchOnNone()
     {
         var opt = Option<int>.None;
-        var result = opt.Match(x => x * 2, () => -1);
+        var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
         Assert.Equal(-1, result);
     }
 
@@ -108,6 +108,24 @@ public class OptionTests
 
         Assert.Equal(42, value);
     }
+
+#if NET7_0_OR_GREATER
+
+    [Fact]
+    public void CanParseStrings()
+    {
+        var integer = Option.Parse<int>("12345");
+        var date = Option.Parse<DateTime>("2023-06-17");
+        var timespan = Option.Parse<TimeSpan>("05:11:04");
+        var fraction = Option.Parse<double>("3.14");
+
+        Assert.True(integer.IsSome(out var i) && i == 12345);
+        Assert.True(date.IsSome(out var d) && d == new DateTime(2023, 06, 17));
+        Assert.True(timespan.IsSome(out var t) && t == new TimeSpan(5, 11, 4));
+        Assert.True(fraction.IsSome(out var x) && x == 3.14);
+    }
+
+#endif
 }
 
 #endif
