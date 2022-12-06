@@ -123,11 +123,11 @@ public static class Option
 #endif
 }
 
-// TODO: useful methods from https://doc.rust-lang.org/std/option/enum.Option.html
-// expect, map_or, ok_or, and, or, xor, filter, zip, transpose, flatten
+// TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
+// expect, unwrap, unwrap_or, map_or, ok_or, and, or, xor, filter, zip, transpose, flatten
 
 // Also a .Some() extension method on any type?
-// Also a "bind to try method" option like Genix?
+// Also support for some well-known types with TryGetValue-type methods?
 
 public static class OptionExtensions
 {
