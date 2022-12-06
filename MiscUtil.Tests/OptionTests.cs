@@ -107,6 +107,72 @@ public class OptionTests
         Assert.Equal(42, value);
     }
 
+    [Fact]
+    public void CanExpect()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        Assert.Equal(42, someInt.Expect("Needs a value"));
+        var ex = Assert.Throws<InvalidOperationException>(() => _ = noneInt.Expect("Needs a value"));
+        Assert.Equal("Needs a value", ex.Message);
+    }
+
+    [Fact]
+    public void CanUnwrap()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        Assert.Equal(42, someInt.Unwrap());
+        _ = Assert.Throws<InvalidOperationException>(() => _ = noneInt.Unwrap());
+    }
+
+    [Fact]
+    public void CanUnwrapOrDefault()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        Assert.Equal(42, someInt.UnwrapOr(-1));
+        Assert.Equal(0, noneInt.UnwrapOr(default));
+    }
+
+    [Fact]
+    public void CanUnwrapOrElse()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+
+        Assert.Equal(42, someInt.UnwrapOrElse(() => -1));
+        Assert.Equal(-1, noneInt.UnwrapOrElse(() => -1));
+    }
+
+    [Fact]
+    public void CanEquate()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+        var someSameInt = Option.Some(42);
+        var someOtherInt = Option.Some(4);
+
+        Assert.Equal(someInt, someSameInt);
+        Assert.NotEqual(someInt, noneInt);
+        Assert.NotEqual(someInt, someOtherInt);
+
+        Assert.True(someInt == someSameInt);
+        Assert.False(someInt == noneInt);
+        Assert.False(someInt == someOtherInt);
+
+        Assert.True(((object)someInt).Equals(someSameInt));
+        Assert.False(((object)someInt).Equals(noneInt));
+        Assert.False(((object)someInt).Equals(someOtherInt));
+
+        Assert.Equal(someInt.GetHashCode(), someSameInt.GetHashCode());
+        Assert.NotEqual(someInt.GetHashCode(), noneInt.GetHashCode());
+        Assert.NotEqual(someInt.GetHashCode(), someOtherInt.GetHashCode());
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]

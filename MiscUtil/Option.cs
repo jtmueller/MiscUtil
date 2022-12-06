@@ -3,12 +3,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using static System.ArgumentNullException;
 
 /// <summary>
 /// <see cref="Option{T}"/> represents an optional value: every <see cref="Option{T}"/> is either <c>Some</c> and contains a value, or <c>None</c>, and does not. 
 /// </summary>
 /// <typeparam name="T">The type the opton might contain.</typeparam>
-public readonly struct Option<T> where T : notnull
+public readonly struct Option<T> : IEquatable<Option<T>>
+    where T : notnull
 {
     /// <summary>
     /// Returns the <c>None</c> option for the specified <typeparamref name="T"/>.
@@ -41,7 +43,7 @@ public readonly struct Option<T> where T : notnull
     /// value through <paramref name="value"/>.
     /// </summary>
     /// <param name="value">The value contained in the option.</param>
-    /// <returns>Returns <c>true</c> if the option is <c>Some</c>.</returns>
+    /// <returns><c>true</c> if the option is <c>Some</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSome([MaybeNullWhen(false)] out T value)
     {
@@ -69,6 +71,39 @@ public readonly struct Option<T> where T : notnull
     public ReadOnlySpan<T>.Enumerator GetEnumerator()
     {
         return AsSpan().GetEnumerator();
+    }
+
+    /// <inheritdoc />
+    public bool Equals(Option<T> other)
+    {
+        if (_isSome != other._isSome)
+            return false;
+
+        if (!_isSome)
+            return true;
+
+        if (_value is IEquatable<T> eq)
+            return eq.Equals(other._value);
+
+        return _value.Equals(other._value);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Option<T> opt && Equals(opt);
+
+    /// <inheritdoc />
+    public override int GetHashCode() => _isSome ? _value.GetHashCode() : 0;
+
+    /// <inheritdoc />
+    public static bool operator ==(Option<T> left, Option<T> right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <inheritdoc />
+    public static bool operator !=(Option<T> left, Option<T> right)
+    {
+        return !left.Equals(right);
     }
 }
 
@@ -182,5 +217,65 @@ public static class OptionExtensions
         return option.IsSome(out var value)
             ? Option<U>.Some(mapper(value))
             : Option<U>.None;
+    }
+
+    /// <summary>
+    /// Returns the contained <c>Some</c> value, or throws an <see cref="InvalidOperationException"/>
+    /// if the value is <c>None</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of the option.</typeparam>
+    /// <param name="option">The option to unwrap.</param>
+    /// <param name="message">The message for the exception that gets thrown if the option has no value.</param>
+    /// <returns>The value contained in the option.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the option does not contain a value.</exception>
+    public static T Expect<T>(this Option<T> option, string message)
+        where T : notnull
+    {
+        return option.IsSome(out var value)
+            ? value : throw new InvalidOperationException(message);
+    }
+
+    /// <summary>
+    /// Returns the contained <c>Some</c> value, or throws an <see cref="InvalidOperationException"/>
+    /// with a generic message if the value is <c>None</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of the option.</typeparam>
+    /// <param name="option">The option to unwrap.</param>
+    /// <returns>The value contained in the option.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the option does not contain a value.</exception>
+    public static T Unwrap<T>(this Option<T> option)
+        where T : notnull
+    {
+        return option.IsSome(out var value)
+            ? value : throw new InvalidOperationException("The option was expected to contain a value, but did not.");
+    }
+
+    /// <summary>
+    /// Returns the contained <c>Some</c> value or a provided default.
+    /// </summary>
+    /// <typeparam name="T">The type of the option.</typeparam>
+    /// <param name="option">The option to bind.</param>
+    /// <param name="defaultValue">The default value to return if the option is <c>None</c>.</param>
+    public static T UnwrapOr<T>(this Option<T> option, T defaultValue)
+        where T : notnull
+    {
+        return option.IsSome(out var value)
+            ? value : defaultValue;
+    }
+
+    /// <summary>
+    /// Returns the contained <c>Some</c> value or computes a default
+    /// using the provided <paramref name="defaultFactory"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the option.</typeparam>
+    /// <param name="option">The option to unwrap.</param>
+    /// <param name="defaultFactory">A function that returns a default value to use if the option is <c>None</c>.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="defaultFactory"/> is null.</exception>
+    public static T UnwrapOrElse<T>(this Option<T> option, Func<T> defaultFactory)
+        where T : notnull
+    {
+        ThrowIfNull(defaultFactory);
+        return option.IsSome(out var value)
+            ? value : defaultFactory();
     }
 }
