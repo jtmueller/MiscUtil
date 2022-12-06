@@ -16,13 +16,18 @@ public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
     /// <summary>
     /// Returns the <c>None</c> option for the specified <typeparamref name="T"/>.
     /// </summary>
-    public static Option<T> None => default;
+    public static Option<T> None
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => default;
+    }
 
     /// <summary>
     /// Returns a <c>Some</c> option for the specified <paramref name="value"/>.
     /// </summary>
     /// <param name="value">The value to wrap in a <c>Some</c> option.</param>
     /// <returns>The given value, wrapped in a <c>Some</c> option.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Some(T value) => new(value);
 
     private readonly bool _isSome;
@@ -233,7 +238,7 @@ public static class Option
 }
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
-// map_or, and, or, xor, filter, zip, flatten
+// map_or, and, or, xor, filter, zip
 
 // Also a .Some() extension method on any type?
 // Also support for some well-known types with TryGetValue-type methods?
