@@ -1,10 +1,10 @@
 ﻿namespace MiscUtil;
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using static System.ArgumentNullException;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using static System.ArgumentNullException;
 
 /// <summary>
 /// <see cref="Option{T}"/> represents an optional value: every <see cref="Option{T}"/> is either <c>Some</c> and contains a value, or <c>None</c>, and does not. 
