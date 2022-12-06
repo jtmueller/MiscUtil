@@ -305,6 +305,38 @@ public class OptionTests
         Assert.Equal(noneInt, someOtherInt.Filter(x => x % 2 == 0));
     }
 
+    [Fact]
+    public void CanZip()
+    {
+        var x = Option.Some(42);
+        var y = Option.Some(17);
+
+        var result = x.Zip(y);
+        var result2 = x.Zip(Option<int>.None);
+        var result3 = Option<int>.None.Zip(x);
+
+        Assert.True(result.IsSome(out var value) && value == (42, 17));
+        Assert.True(result2.IsNone);
+        Assert.True(result3.IsNone);
+    }
+
+    [Fact]
+    public void CanZipWith()
+    {
+        var x = Option.Some("key");
+        var y = Option.Some(17);
+
+        var result = x.ZipWith(y, KeyValuePair.Create);
+        var result2 = x.ZipWith(Option<int>.None, KeyValuePair.Create);
+        var result3 = Option<int>.None.ZipWith(x, KeyValuePair.Create);
+
+        Assert.True(result.IsSome(out var value));
+        Assert.Equal("key", value.Key);
+        Assert.Equal(17, value.Value);
+        Assert.True(result2.IsNone);
+        Assert.True(result3.IsNone);
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]

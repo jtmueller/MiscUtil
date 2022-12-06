@@ -510,11 +510,55 @@ public static class OptionExtensions
 
         return Option<T>.None;
     }
+
+    /// <summary>
+    /// Zips this <c>Option</c> with another <c>Option</c>.
+    /// <para>If this option is <c>Some(s)</c> and other is <c>Some(o)</c>, this method returns <c>Some((s, o))</c>. Otherwise, <c>None</c> is returned.</para>
+    /// </summary>
+    /// <typeparam name="T">The type contained by the first option.</typeparam>
+    /// <typeparam name="U">The type contained by the second option.</typeparam>
+    /// <param name="option">The first option.</param>
+    /// <param name="other">The second option.</param>
+    /// <returns>An option containing the values from both input options, if both have values. Otherwise, <c>None</c>.</returns>
+    public static Option<(T, U)> Zip<T, U>(this Option<T> option, Option<U> other)
+        where T : notnull where U : notnull
+    {
+        if (option.IsSome(out var x) && other.IsSome(out var y))
+        {
+            return Option<(T, U)>.Some((x, y));
+        }
+
+        return Option<(T, U)>.None;
+    }
+
+    /// <summary>
+    /// Zips this <c>Option</c> and another <c>Option</c> with function <paramref name="zipper"/>.
+    /// <para>If this option is <c>Some(s)</c> and other is <c>Some(o)</c>, this method returns <c>Some(zipper(s, o))</c>. Otherwise, <c>None</c> is returned.</para>
+    /// </summary>
+    /// <typeparam name="T">The type contained by the first option.</typeparam>
+    /// <typeparam name="U">The type contained by the second option.</typeparam>
+    /// <typeparam name="V">The type returned by the <paramref name="zipper"/> function.</typeparam>
+    /// <param name="option">The first option.</param>
+    /// <param name="other">The second option.</param>
+    /// <param name="zipper">A functon that combines values from the two options into a new type.</param>
+    /// <returns>An option contianing the result of passing both values to the <paramref name="zipper"/> function, or <c>None</c>.</returns>
+    public static Option<V> ZipWith<T, U, V>(this Option<T> option, Option<U> other, Func<T, U, V> zipper)
+        where T : notnull where U : notnull where V : notnull
+    {
+        ThrowIfNull(zipper);
+
+        if (option.IsSome(out var x) && other.IsSome(out var y))
+        {
+            return Option<V>.Some(zipper(x, y));
+        }
+
+        return Option<V>.None;
+    }
 }
 
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
-// and, or, xor, zip
+// and, or, xor
 
 // Also a .Some() extension method on any type?
 // Also support for some well-known types with TryGetValue-type methods?
