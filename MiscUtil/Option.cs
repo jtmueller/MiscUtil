@@ -159,7 +159,7 @@ public static class Option
 }
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
-// expect, unwrap, unwrap_or, map_or, ok_or, and, or, xor, filter, zip, transpose, flatten
+// map_or, and, or, xor, filter, zip, flatten
 
 // Also a .Some() extension method on any type?
 // Also support for some well-known types with TryGetValue-type methods?
@@ -315,5 +315,30 @@ public static class OptionExtensions
         return option.IsSome(out var value)
             ? Result<T, TErr>.Ok(value)
             : Result<T, TErr>.Err(errorFactory());
+    }
+
+    /// <summary>
+    /// Transposes an <c>Option</c> of a <c>Result</c> into a <c>Result</c> of an <c>Option</c>.
+    /// <para>
+    ///     <c>None</c> will be mapped to <c>Ok(None)</c>. 
+    ///     <c>Some(Ok(_))</c> and <c>Some(Err(_))</c> will be mapped to <c>Ok(Some(_))</c> and <c>Err(_)</c>.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <typeparam name="TErr">The type of the error.</typeparam>
+    /// <param name="option">An option containing a result.</param>
+    /// <returns>An equivalent result containing an option.</returns>
+    public static Result<Option<T>, TErr> Transpose<T, TErr>(this Option<Result<T, TErr>> option)
+        where T : notnull where TErr : notnull
+    {
+        if (option.IsSome(out var result))
+        {
+            return result.Match(
+                onOk: val => Result<Option<T>, TErr>.Ok(Option<T>.Some(val)),
+                onErr: Result<Option<T>, TErr>.Err
+            );
+        }
+
+        return Result<Option<T>, TErr>.Ok(Option<T>.None);
     }
 }

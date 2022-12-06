@@ -5,7 +5,7 @@ using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
-public readonly struct Result<T, TErr>
+public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>
     where T : notnull where TErr : notnull
 {
     public static Result<T, TErr> Ok(T value) => new(value);
@@ -57,6 +57,37 @@ public readonly struct Result<T, TErr>
     public ReadOnlySpan<T>.Enumerator GetEnumerator()
     {
         return AsSpan().GetEnumerator();
+    }
+
+    /// <inheritdoc />
+    public bool Equals(Result<T, TErr> other)
+    {
+        if (_isOk != other._isOk)
+            return false;
+
+        if (_isOk)
+        {
+            if (_value is IEquatable<T> eq)
+                return eq.Equals(other._value);
+
+            return _value.Equals(other._value);
+        }
+        else
+        {
+            if (_err is IEquatable<TErr> eq)
+                return eq.Equals(other._err);
+
+            return _err.Equals(other._err);
+        }
+    }
+
+    /// <inheritdoc />
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Result<T, TErr> other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return _isOk ? _value.GetHashCode() : _err.GetHashCode();
     }
 }
 

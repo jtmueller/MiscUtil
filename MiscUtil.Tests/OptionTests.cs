@@ -199,6 +199,22 @@ public class OptionTests
         Assert.True(noneResult.IsErr(out var err) && err == "No value found!");
     }
 
+    [Fact]
+    public void CanTranspose()
+    {
+        var someOkTest = Option<Result<int, string>>.Some(Result<int, string>.Ok(42));
+        var someErrTest = Option<Result<int, string>>.Some(Result<int, string>.Err("Bad things happened"));
+        var noneTest = Option<Result<int, string>>.None;
+
+        var someOkExpected = Result<Option<int>, string>.Ok(Option.Some(42));
+        var someErrExpected = Result<Option<int>, string>.Err("Bad things happened");
+        var noneExpected = Result<Option<int>, string>.Ok(Option<int>.None);
+
+        Assert.Equal(someOkExpected, someOkTest.Transpose());
+        Assert.Equal(someErrExpected, someErrTest.Transpose());
+        Assert.Equal(noneExpected, noneTest.Transpose());
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]
