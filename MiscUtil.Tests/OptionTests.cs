@@ -69,6 +69,30 @@ public class OptionTests
     }
 
     [Fact]
+    public void CanMapOr()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+        var someResult = someInt.MapOr(x => x.ToString(), "empty");
+        var noneResult = noneInt.MapOr(x => x.ToString(), "empty");
+
+        Assert.Equal("42", someResult);
+        Assert.Equal("empty", noneResult);
+    }
+
+    [Fact]
+    public void CanMapOrElse()
+    {
+        var someInt = Option.Some(42);
+        var noneInt = Option<int>.None;
+        var someResult = someInt.MapOrElse(x => x.ToString(), () => "empty");
+        var noneResult = noneInt.MapOrElse(x => x.ToString(), () => "empty");
+
+        Assert.Equal("42", someResult);
+        Assert.Equal("empty", noneResult);
+    }
+
+    [Fact]
     public void CanGetSpan()
     {
         var someInt = Option.Some(42);

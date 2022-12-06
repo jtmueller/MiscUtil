@@ -2,8 +2,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using static System.ArgumentNullException;
 
 /// <summary>
@@ -287,15 +289,56 @@ public static class OptionExtensions
     /// </summary>
     /// <typeparam name="T">The type of the option.</typeparam>
     /// <typeparam name="U">The type returned by the binder functions.</typeparam>
-    /// <param name="option">The option to bind.</param>
+    /// <param name="option">The option to map.</param>
     /// <param name="mapper">The function that maps the value contained in the option.</param>
     /// <returns>The mapped value as <c>Some</c>, or <c>None</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/> is null.</exception>
     public static Option<U> Map<T, U>(this Option<T> option, Func<T, U> mapper)
         where T : notnull where U : notnull
     {
+        ThrowIfNull(mapper);
+
         return option.IsSome(out var value)
             ? Option<U>.Some(mapper(value))
             : Option<U>.None;
+    }
+
+    /// <summary>
+    /// Returns the provided default result (if <c>None</c>), or applies a function to the contained value (if <c>Some</c>).
+    /// <para>Arguments passed to <see cref="MapOr"/> are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <see cref="MapOrElse"/>, which is lazily evaluated.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the option's value.</typeparam>
+    /// <typeparam name="U">The return type after mapping.</typeparam>
+    /// <param name="option">The option to map.</param>
+    /// <param name="mapper">The function that maps the value contained in the option.</param>
+    /// <param name="defaultValue">The default value to return if the option is <c>None</c>.</param>
+    /// <returns>The mapped value, or the default value.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/> is null.</exception>
+    public static U MapOr<T, U>(this Option<T> option, Func<T, U> mapper, U defaultValue)
+        where T : notnull where U : notnull
+    {
+        ThrowIfNull(mapper);
+        return option.IsSome(out var value) ? mapper(value) : defaultValue;
+    }
+
+    /// <summary>
+    /// Computes a default function result (if <c>None</c>), or applies a different function to the contained value (if <c>Some</c>).
+    /// </summary>
+    /// <typeparam name="T">The type of the option's value.</typeparam>
+    /// <typeparam name="U">The return type after mapping.</typeparam>
+    /// <param name="option">The option to map.</param>
+    /// <param name="mapper">The function that maps the value contained in the option.</param>
+    /// <param name="defaultFactory">The function that lazily generates a default value, if required.</param>
+    /// <param name="defaultValue">The default value to return if the option is <c>None</c>.</param>
+    /// <returns>The mapped value, or the default value.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/> or <paramref name="defaultFactory"/> is null.</exception>
+    public static U MapOrElse<T, U>(this Option<T> option, Func<T, U> mapper, Func<U> defaultFactory)
+        where T : notnull where U : notnull
+    {
+        ThrowIfNull(mapper);
+        ThrowIfNull(defaultFactory);
+
+        return option.IsSome(out var value) ? mapper(value) : defaultFactory();
     }
 
     /// <summary>
