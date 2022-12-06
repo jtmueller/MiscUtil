@@ -10,7 +10,10 @@ public class OptionTests
     {
         var none = Option<int>.None;
         var someStruct = Option.Some(42);
+        var someNullableStruct = Option.Create((int?)42);
         var someClass = Option<string>.Some(new string("test"));
+        var nullOptClass = Option.Create((string?)null);
+        var nullOptStruct = Option.Create((int?)null);
 
         Assert.True(none.IsNone);
         Assert.False(none.IsSome(out _));
@@ -19,9 +22,16 @@ public class OptionTests
         Assert.Equal(42, structVal);
         Assert.False(someStruct.IsNone);
 
+        Assert.True(someNullableStruct.IsSome(out var ns));
+        Assert.Equal(42, ns);
+        Assert.False(someNullableStruct.IsNone);
+
         Assert.True(someClass.IsSome(out var classVal));
         Assert.Equal("test", classVal);
         Assert.False(someClass.IsNone);
+
+        Assert.True(nullOptClass.IsNone);
+        Assert.True(nullOptStruct.IsNone);
     }
 
     [Fact]
@@ -45,8 +55,8 @@ public class OptionTests
     {
         var someInt = Option.Some(42);
         var noneInt = Option<int>.None;
-        var someResult = someInt.Bind(x => Option.Some(x.ToString()));
-        var noneResult = noneInt.Bind(x => Option.Some(x.ToString()));
+        var someResult = someInt.Bind(x => Option.Create(x.ToString()));
+        var noneResult = noneInt.Bind(x => Option.Create(x.ToString()));
         var someToNoneResult = someInt.Bind(_ => Option<DateTime>.None);
 
         Assert.True(someResult.IsSome(out var str));

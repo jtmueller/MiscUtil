@@ -2,10 +2,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.X86;
 using static System.ArgumentNullException;
 
 /// <summary>
@@ -26,6 +24,7 @@ public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
 
     /// <summary>
     /// Returns a <c>Some</c> option for the specified <paramref name="value"/>.
+    /// <para>NOTE: Nulls are not allowed; a null value will result in a <c>None</c> option even when calling <see cref="Some"/>.</para>
     /// </summary>
     /// <param name="value">The value to wrap in a <c>Some</c> option.</param>
     /// <returns>The given value, wrapped in a <c>Some</c> option.</returns>
@@ -197,6 +196,28 @@ public static class Option
     public static Option<T> Some<T>(T value) where T : notnull => Option<T>.Some(value);
 
     /// <summary>
+    /// Returns a <c>Some</c> option for the specified <paramref name="value"/> if it is not null, otherwise <c>None</c>.
+    /// </summary>
+    /// <param name="value">The value to wrap in a <c>Some</c> option.</param>
+    /// <returns>The given value, wrapped in a <c>Some</c> option.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> Create<T>(T? value) where T : class => Option<T>.Some(value!);
+
+    /// <summary>
+    /// Returns a <c>Some</c> option for the specified <paramref name="value"/> is it is not null, otherwise <c>None</c>.
+    /// </summary>
+    /// <param name="value">The value to wrap in a <c>Some</c> option.</param>
+    /// <returns>The given value, wrapped in a <c>Some</c> option.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> Create<T>(T? value)
+        where T : struct
+    {
+        return value.HasValue
+            ? Option<T>.Some(value.GetValueOrDefault())
+            : Option<T>.None;
+    }
+
+    /// <summary>
     /// Returns the <c>None</c> option for the specified <typeparamref name="T"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -238,12 +259,6 @@ public static class Option
 
 #endif
 }
-
-// TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
-// map_or, and, or, xor, filter, zip
-
-// Also a .Some() extension method on any type?
-// Also support for some well-known types with TryGetValue-type methods?
 
 public static class OptionExtensions
 {
@@ -381,8 +396,7 @@ public static class OptionExtensions
     public static T UnwrapOr<T>(this Option<T> option, T defaultValue)
         where T : notnull
     {
-        return option.IsSome(out var value)
-            ? value : defaultValue;
+        return option.IsSome(out var value) ? value : defaultValue;
     }
 
     /// <summary>
@@ -397,8 +411,7 @@ public static class OptionExtensions
         where T : notnull
     {
         ThrowIfNull(defaultFactory);
-        return option.IsSome(out var value)
-            ? value : defaultFactory();
+        return option.IsSome(out var value) ? value : defaultFactory();
     }
 
     /// <summary>
@@ -498,3 +511,10 @@ public static class OptionExtensions
         return Option<T>.None;
     }
 }
+
+
+// TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
+// and, or, xor, zip
+
+// Also a .Some() extension method on any type?
+// Also support for some well-known types with TryGetValue-type methods?
