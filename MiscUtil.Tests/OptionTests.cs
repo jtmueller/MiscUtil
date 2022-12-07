@@ -337,7 +337,30 @@ public class OptionTests
         Assert.True(result3.IsNone);
     }
 
+    [Fact]
+    public void CanAnd()
+    {
+        var someStr = Option.Some("42");
+        var noneStr = Option<string>.None;
+
+        Assert.Equal(Option.Some(17), someStr.And(Option.Some(17)));
+        Assert.Equal(Option<int>.None, noneStr.And(Option.Some(17)));
+        Assert.Equal(Option<int>.None, someStr.And(Option<int>.None));
+    }
+
 #if NET7_0_OR_GREATER
+
+    [Fact]
+    public void CanAndThen()
+    {
+        var someIntStr = Option.Some("42");
+        var someOtherStr = Option.Some("foo");
+        var noneStr = Option<string>.None;
+
+        Assert.Equal(Option.Some(42), someIntStr.AndThen(Option.Parse<int>));
+        Assert.Equal(Option<int>.None, noneStr.AndThen(Option.Parse<int>));
+        Assert.Equal(Option<int>.None, someOtherStr.AndThen(Option.Parse<int>));
+    }
 
     [Fact]
     public void CanParseStrings()
