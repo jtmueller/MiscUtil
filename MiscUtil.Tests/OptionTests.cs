@@ -1,7 +1,7 @@
-﻿namespace MiscUtil.Tests;
-
-using System.Globalization;
+﻿using System.Globalization;
 using Xunit;
+
+namespace MiscUtil.Tests;
 
 public class OptionTests
 {
@@ -417,6 +417,76 @@ public class OptionTests
         Array.Sort(items);
         Assert.Equal(new[] { n, a, b, c, d }, items);
     }
+
+    [Fact]
+    public void CanGetOptionFromDictionary()
+    {
+        Dictionary<int, string> numsToNames = new()
+        {
+            { 1, "one" },
+            { 2, "two" },
+            { 3, "three" },
+            { 4, "four" },
+            { 5, "five" }
+        };
+
+        var namesToNums = numsToNames.ToDictionary(kvp => kvp.Value, kvp => kvp.Key.ToString());
+
+        Assert.Equal(Option.Some("three"), numsToNames.GetOption(3));
+        Assert.True(numsToNames.GetOption(7).IsNone);
+
+        var chainResult = numsToNames
+            .GetOption(4)
+            .AndThen(namesToNums.GetOption)
+            .AndThen(ParseInt);
+
+        Assert.Equal(Option.Some(4), chainResult);
+
+        chainResult = numsToNames
+            .GetOption(96)
+            .AndThen(namesToNums.GetOption)
+            .AndThen(ParseInt);
+
+        Assert.True(chainResult.IsNone);
+
+        static Option<int> ParseInt(string s)
+            => int.TryParse(s, out int parsed) ? Option.Some(parsed) : Option<int>.None;
+    }
+
+    [Fact]
+    public void CanDeconstruct()
+    {
+        var (isSome, value) = Option.Some(42);
+        Assert.True(isSome);
+        Assert.Equal(42, value);
+
+        (isSome, value) = Option<int>.None;
+        Assert.False(isSome);
+        Assert.Equal(default, value);
+    }
+
+    [Fact]
+    public void CanBindTryGetValue()
+    {
+        Dictionary<int, string> numsToNames = new()
+        {
+            { 1, "one" },
+            { 2, "two" },
+            { 3, "three" },
+            { 4, "four" },
+            { 5, "five" }
+        };
+
+        var namesToNums = numsToNames.ToDictionary(kvp => kvp.Value, kvp => kvp.Key.ToString());
+
+        var result = numsToNames.GetOption(2)
+            .AndThen(Option.Bind<string, string>(namesToNums.TryGetValue))
+            .AndThen(Option.Bind<string, int>(int.TryParse));
+
+        Assert.Equal(Option.Some(2), result);
+    }
+
+    // TODO: tests for JSON extension methods, Option.Bind(TryGet) (JsonElement.TryGetInt32)
 
 #if NET7_0_OR_GREATER
 

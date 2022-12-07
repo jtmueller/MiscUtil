@@ -79,6 +79,22 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
         return AsSpan().GetEnumerator();
     }
 
+    /// <summary>
+    /// The Deconstruct method is used by the C# destructuring syntax to get the component
+    /// parts from this Option.
+    /// <code>
+    ///   var (isSome, value) = Option.Some(42);
+    ///   // isSome is true, value is 42
+    /// </code>
+    /// </summary>
+    /// <param name="isSome">Whether or not this option represents a <c>Some</c> value.</param>
+    /// <param name="value">The value contained in this option, if any.</param>
+    public void Deconstruct(out bool isSome, out T? value)
+    {
+        isSome = _isSome;
+        value = _value;
+    }
+
     /// <inheritdoc />
     public bool Equals(Option<T> other)
     {
@@ -259,6 +275,50 @@ public static class Option
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> None<T>() where T : notnull => default;
+
+    /// <summary>
+    /// Delegate that represents a fallible attempt to get a value of a given type.
+    /// </summary>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <param name="value">The value retrieved, if any.</param>
+    /// <returns><c>true</c> if the value was retrieved, otherwise false.</returns>
+    public delegate bool TryGet<T>([MaybeNullWhen(false)] out T? value);
+
+    /// <summary>
+    /// Generates a function that calls the provided <see cref="TryGet{T}"/> delegate
+    /// and wraps the result as an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type to get.</typeparam>
+    /// <param name="tryGet">The <see cref="TryGet{T}"/> function to call.</param>
+    /// <returns>A function that will call the <paramref name="tryGet"/> function and wrap the results as an <see cref="Option{T}"/>.</returns>
+    public static Func<Option<T>> Bind<T>(TryGet<T> tryGet)
+        where T : notnull
+    {
+        return () => tryGet(out var value) ? Option<T>.Some(value!) : Option<T>.None;
+    }
+
+    /// <summary>
+    /// Delegate that represents a fallible attempt to get a value associated with a given key.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of value to get.</typeparam>
+    /// <param name="value">The value retrieved, if any.</param>
+    /// <returns><c>true</c> if the value was retrieved, otherwise false.</returns>
+    public delegate bool TryGetValue<TKey, TValue>(TKey key, [MaybeNullWhen(false)] out TValue? value);
+
+    /// <summary>
+    /// Generates a function that calls the provided <see cref="TryGetValue{TKey,TValue}"/> delegate
+    /// and wraps the result as an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type to get.</typeparam>
+    /// <param name="tryGetValue">The <see cref="TryGetValue{TKey,TValue}"/> function to call.</param>
+    /// <returns>A function that will call the <paramref name="tryGetValue"/> function and wrap the results as an <see cref="Option{T}"/>.</returns>
+    public static Func<TKey, Option<TValue>> Bind<TKey, TValue>(TryGetValue<TKey, TValue> tryGetValue)
+        where TValue : notnull where TKey : notnull
+    {
+        return (TKey key) => tryGetValue(key, out var value) ? Option<TValue>.Some(value!) : Option<TValue>.None;
+    }
 
 #if NET7_0_OR_GREATER
 

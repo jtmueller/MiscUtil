@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using static System.ArgumentNullException;
 
 namespace MiscUtil;
@@ -402,11 +403,119 @@ public static class OptionExtensions
     {
         return Option.Create(value);
     }
+
+    /// <summary>
+    /// Gets the value associated with the given <paramref name="key"/> from the <see cref="IDictionary{TKey, TValue}"/> as an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="self">The dictionary.</param>
+    /// <param name="key">The key.</param>
+    /// <returns>If the key is found, returns <c>Some(value)</c>. Otherwise, <c>None</c>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<TValue> GetOption<TKey, TValue>(this IDictionary<TKey, TValue> self, TKey key)
+        where TValue : notnull where TKey : notnull
+    {
+        ThrowIfNull(self);
+        return self.TryGetValue(key, out var value)
+            ? Option<TValue>.Some(value)
+            : Option<TValue>.None;
+    }
+
+    /// <summary>
+    /// Gets the value associated with the given <paramref name="key"/> from the <see cref="IDictionary{TKey, TValue}"/> as an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="self">The dictionary.</param>
+    /// <param name="key">The key.</param>
+    /// <returns>If the key is found, returns <c>Some(value)</c>. Otherwise, <c>None</c>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<TValue> GetOption<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> self, TKey key)
+        where TValue : notnull where TKey : notnull
+    {
+        ThrowIfNull(self);
+        return self.TryGetValue(key, out var value)
+            ? Option<TValue>.Some(value)
+            : Option<TValue>.None;
+    }
+
+    /// <summary>
+    /// Gets the value associated with the given <paramref name="key"/> from the <see cref="IDictionary{TKey, TValue}"/> as an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="self">The dictionary.</param>
+    /// <param name="key">The key.</param>
+    /// <returns>If the key is found, returns <c>Some(value)</c>. Otherwise, <c>None</c>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<TValue> GetOption<TKey, TValue>(this Dictionary<TKey, TValue> self, TKey key)
+        where TValue : notnull where TKey : notnull
+    {
+        // This overload is needed to disambiguate between IDictionary and IReadOnlyDictionary,
+        // as Dictionary implements both.
+        ThrowIfNull(self);
+
+        return self.TryGetValue(key, out var value)
+            ? Option<TValue>.Some(value)
+            : Option<TValue>.None;
+    }
+
+    /// <summary>
+    /// Attempts to get the underlying JSON value as the specified type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="self"></param>
+    /// <returns><c>Some(value)</c> if the underlying value could be successfully converted, otherwise <c>None</c>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> GetOption<T>(this System.Text.Json.Nodes.JsonValue self)
+        where T : notnull
+    {
+        ThrowIfNull(self);
+        return self.TryGetValue<T>(out var value)
+            ? Option<T>.Some(value)
+            : Option<T>.None;
+    }
+
+    /// <summary>
+    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// </summary>
+    /// <param name="self">The json element to read from.</param>
+    /// <param name="propertyName">The name of the property to retrieve.</param>
+    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
+    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, string propertyName)
+    {
+        ThrowIfNull(self);
+        return self.TryGetProperty(propertyName, out var value)
+            ? Option<System.Text.Json.JsonElement>.Some(value)
+            : Option<System.Text.Json.JsonElement>.None;
+    }
+
+    /// <summary>
+    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// </summary>
+    /// <param name="self">The json element to read from.</param>
+    /// <param name="propertyName">The name of the property to retrieve.</param>
+    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
+    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, ReadOnlySpan<char> propertyName)
+    {
+        ThrowIfNull(self);
+        return self.TryGetProperty(propertyName, out var value)
+            ? Option<System.Text.Json.JsonElement>.Some(value)
+            : Option<System.Text.Json.JsonElement>.None;
+    }
+
+    /// <summary>
+    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// </summary>
+    /// <param name="self">The json element to read from.</param>
+    /// <param name="propertyName">The name of the property to retrieve.</param>
+    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
+    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, ReadOnlySpan<byte> propertyName)
+    {
+        ThrowIfNull(self);
+        return self.TryGetProperty(propertyName, out var value)
+            ? Option<System.Text.Json.JsonElement>.Some(value)
+            : Option<System.Text.Json.JsonElement>.None;
+    }
 }
-
-
-// TODO: a .Some() extension method on any type?
-// TODO: support for some well-known types with TryGetValue-type methods?
-
-
-
