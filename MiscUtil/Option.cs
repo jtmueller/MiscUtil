@@ -104,10 +104,7 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
         if (!_isSome)
             return true;
 
-        if (_value is IEquatable<T> eq)
-            return eq.Equals(other._value);
-
-        return _value.Equals(other._value);
+        return EqualityComparer<T>.Default.Equals(_value, other._value);
     }
 
     /// <inheritdoc />
@@ -291,10 +288,20 @@ public static class Option
     /// <typeparam name="T">The type to get.</typeparam>
     /// <param name="tryGet">The <see cref="TryGet{T}"/> function to call.</param>
     /// <returns>A function that will call the <paramref name="tryGet"/> function and wrap the results as an <see cref="Option{T}"/>.</returns>
-    public static Func<Option<T>> Bind<T>(TryGet<T> tryGet)
+    public static Option<T> Bind<T>(TryGet<T> tryGet)
         where T : notnull
     {
-        return () => tryGet(out var value) ? Option<T>.Some(value!) : Option<T>.None;
+        try
+        {
+            return tryGet(out var value) ? Option<T>.Some(value!) : Option<T>.None;
+        }
+        catch (Exception)
+        {
+            // JsonElement's TryGetXXX methods will throw an exception instead of
+            // returning false if the underlying node type does not match the requested
+            // data type (calling TryGetInt32 on a string node).
+            return Option<T>.None;
+        }
     }
 
     /// <summary>

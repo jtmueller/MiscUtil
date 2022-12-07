@@ -1,5 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 using static System.ArgumentNullException;
 
 namespace MiscUtil;
@@ -468,7 +469,7 @@ public static class OptionExtensions
     /// <param name="self"></param>
     /// <returns><c>Some(value)</c> if the underlying value could be successfully converted, otherwise <c>None</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<T> GetOption<T>(this System.Text.Json.Nodes.JsonValue self)
+    public static Option<T> GetOption<T>(this JsonValue self)
         where T : notnull
     {
         ThrowIfNull(self);
@@ -478,44 +479,87 @@ public static class OptionExtensions
     }
 
     /// <summary>
-    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// Attempts to get a property with the given name as the given data type. Does not support array properties - use GetPropOption for arrays.
     /// </summary>
-    /// <param name="self">The json element to read from.</param>
+    /// <typeparam name="T">The value type to convert to.</typeparam>
+    /// <param name="self">The JsonObject to get the property from.</param>
     /// <param name="propertyName">The name of the property to retrieve.</param>
-    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
-    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, string propertyName)
+    /// <returns><c>None</c> if the property was not present or could not be parsed into the indicated type. Otherwise, <c>Some(value)</c>.</returns>
+    public static Option<T> GetPropValue<T>(this JsonObject self, string propertyName)
+        where T : notnull
     {
         ThrowIfNull(self);
-        return self.TryGetProperty(propertyName, out var value)
-            ? Option<System.Text.Json.JsonElement>.Some(value)
-            : Option<System.Text.Json.JsonElement>.None;
+        if (self.TryGetPropertyValue(propertyName, out var node))
+        {
+            return node switch
+            {
+                JsonValue val => val.GetOption<T>(),
+                JsonArray => Option<T>.None, // JsonArray isn't supported for this use
+                JsonObject obj => obj.AsValue().GetOption<T>(),
+                JsonNode n => n.AsValue().GetOption<T>(),
+                _ => Option<T>.None
+            };
+        }
+
+        return Option<T>.None;
     }
 
     /// <summary>
-    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// Gets the indicated propery node as an <see cref="Option{T}"/>.
     /// </summary>
-    /// <param name="self">The json element to read from.</param>
+    /// <param name="self">The JSON node to read from.</param>
     /// <param name="propertyName">The name of the property to retrieve.</param>
-    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
-    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, ReadOnlySpan<char> propertyName)
+    /// <returns><c>None</c> if the property was not present, otherwise <c>Some(node)</c></returns>
+    public static Option<JsonNode> GetPropOption(this JsonObject self, string propertyName)
     {
         ThrowIfNull(self);
-        return self.TryGetProperty(propertyName, out var value)
-            ? Option<System.Text.Json.JsonElement>.Some(value)
-            : Option<System.Text.Json.JsonElement>.None;
+        if (self.TryGetPropertyValue(propertyName, out var node))
+        {
+            return Option.Some(node!);
+        }
+
+        return Option<JsonNode>.None;
     }
 
     /// <summary>
-    /// Gets the indicated property value as an <see cref="Option{T}"/>
+    /// Gets the indicated property element as an <see cref="Option{T}"/>
     /// </summary>
     /// <param name="self">The json element to read from.</param>
     /// <param name="propertyName">The name of the property to retrieve.</param>
     /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
-    public static Option<System.Text.Json.JsonElement> GetPropOption(this System.Text.Json.JsonElement self, ReadOnlySpan<byte> propertyName)
+    public static Option<JsonElement> GetPropOption(this JsonElement self, string propertyName)
     {
         ThrowIfNull(self);
         return self.TryGetProperty(propertyName, out var value)
-            ? Option<System.Text.Json.JsonElement>.Some(value)
-            : Option<System.Text.Json.JsonElement>.None;
+            ? Option<JsonElement>.Some(value)
+            : Option<JsonElement>.None;
+    }
+
+    /// <summary>
+    /// Gets the indicated property element as an <see cref="Option{T}"/>
+    /// </summary>
+    /// <param name="self">The json element to read from.</param>
+    /// <param name="propertyName">The name of the property to retrieve.</param>
+    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
+    public static Option<JsonElement> GetPropOption(this JsonElement self, ReadOnlySpan<char> propertyName)
+    {
+        ThrowIfNull(self);
+        return self.TryGetProperty(propertyName, out var value)
+            ? Option<JsonElement>.Some(value)
+            : Option<JsonElement>.None;
+    }
+
+    /// <summary>
+    /// Gets the indicated property element as an <see cref="Option{T}"/>
+    /// </summary>
+    /// <param name="self">The json element to read from.</param>
+    /// <param name="propertyName">The name of the property to retrieve.</param>
+    /// <returns><c>Some(JsonElement)</c> if the property was found, otherwise <c>None</c>.</returns>
+    public static Option<JsonElement> GetPropOption(this JsonElement self, ReadOnlySpan<byte> propertyName)
+    {
+        ThrowIfNull(self);
+        return self.TryGetProperty(propertyName, out var value)
+            ? Option<JsonElement>.Some(value)
+            : Option<JsonElement>.None;
     }
 }
