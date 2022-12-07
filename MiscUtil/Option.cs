@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 /// <see cref="Option{T}"/> represents an optional value: every <see cref="Option{T}"/> is either <c>Some</c> and contains a value, or <c>None</c>, and does not. 
 /// </summary>
 /// <typeparam name="T">The type the opton might contain.</typeparam>
-public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
+public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>, ISpanFormattable
     where T : notnull
 {
     /// <summary>
@@ -167,6 +167,18 @@ public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
             : "None";
     }
 
+    /// <inheritdoc/>
+    public int CompareTo(Option<T> other)
+    {
+        return (_isSome, other._isSome) switch
+        {
+            (true, true) => Comparer<T>.Default.Compare(_value, other._value),
+            (true, false) => 1,
+            (false, true) => -1,
+            (false, false) => 0
+        };
+    }
+
     /// <inheritdoc />
     public static bool operator ==(Option<T> left, Option<T> right)
     {
@@ -177,6 +189,30 @@ public readonly struct Option<T> : IEquatable<Option<T>>, ISpanFormattable
     public static bool operator !=(Option<T> left, Option<T> right)
     {
         return !left.Equals(right);
+    }
+
+    /// <inheritdoc />
+    public static bool operator >(Option<T> left, Option<T> right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    /// <inheritdoc />
+    public static bool operator <(Option<T> left, Option<T> right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    /// <inheritdoc />
+    public static bool operator >=(Option<T> left, Option<T> right)
+    {
+        return left.CompareTo(right) >= 0;
+    }
+
+    /// <inheritdoc />
+    public static bool operator <=(Option<T> left, Option<T> right)
+    {
+        return left.CompareTo(right) <= 0;
     }
 }
 

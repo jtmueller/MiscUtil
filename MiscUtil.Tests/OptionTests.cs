@@ -396,6 +396,26 @@ public class OptionTests
         Assert.Equal(nn, sx.Xor(sy));
     }
 
+    [Fact]
+    public void CanCompare()
+    {
+        var a = Option.Some(1);
+        var b = Option.Some(2);
+        var c = Option.Some(3);
+        var d = Option.Some(4);
+
+#pragma warning disable CS1718 // Comparison made to same variable
+        Assert.True(b > a);
+        Assert.True(b >= b);
+        Assert.True(c < d);
+        Assert.True(c <= c);
+#pragma warning restore CS1718 // Comparison made to same variable
+
+        var items = new[] { d, b, c, a };
+        Array.Sort(items);
+        Assert.Equal(new[] { a, b, c, d }, items);
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]
