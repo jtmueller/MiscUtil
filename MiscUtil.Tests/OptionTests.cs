@@ -348,8 +348,6 @@ public class OptionTests
         Assert.Equal(Option<int>.None, someStr.And(Option<int>.None));
     }
 
-#if NET7_0_OR_GREATER
-
     [Fact]
     public void CanAndThen()
     {
@@ -357,10 +355,35 @@ public class OptionTests
         var someOtherStr = Option.Some("foo");
         var noneStr = Option<string>.None;
 
-        Assert.Equal(Option.Some(42), someIntStr.AndThen(Option.Parse<int>));
-        Assert.Equal(Option<int>.None, noneStr.AndThen(Option.Parse<int>));
-        Assert.Equal(Option<int>.None, someOtherStr.AndThen(Option.Parse<int>));
+        Assert.Equal(Option.Some(42), someIntStr.AndThen(ParseInt));
+        Assert.Equal(Option<int>.None, noneStr.AndThen(ParseInt));
+        Assert.Equal(Option<int>.None, someOtherStr.AndThen(ParseInt));
+
+        static Option<int> ParseInt(string s)
+            => int.TryParse(s, out int parsed) ? Option.Some(parsed) : Option<int>.None;
     }
+
+    [Fact]
+    public void CanOr()
+    {
+        var someStr = Option.Some("42");
+        var noneStr = Option<string>.None;
+
+        Assert.Equal(someStr, someStr.Or(Option.Some("other")));
+        Assert.Equal(Option.Some("other"), noneStr.Or(Option.Some("other")));
+    }
+
+    [Fact]
+    public void CanOrElse()
+    {
+        var someStr = Option.Some("42");
+        var noneStr = Option<string>.None;
+
+        Assert.Equal(someStr, someStr.OrElse(() => Option.Some("other")));
+        Assert.Equal(Option.Some("other"), noneStr.OrElse(() => Option.Some("other")));
+    }
+
+#if NET7_0_OR_GREATER
 
     [Fact]
     public void CanParseStrings()

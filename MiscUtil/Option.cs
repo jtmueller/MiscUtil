@@ -2,8 +2,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using static System.ArgumentNullException;
 
 /// <summary>
@@ -565,6 +567,7 @@ public static class OptionExtensions
     /// <param name="other">The second option.</param>
     /// <param name="zipper">A functon that combines values from the two options into a new type.</param>
     /// <returns>An option contianing the result of passing both values to the <paramref name="zipper"/> function, or <c>None</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="zipper"/> is null.</exception>
     public static Option<V> ZipWith<T, U, V>(this Option<T> self, Option<U> other, Func<T, U, V> zipper)
         where T : notnull where U : notnull where V : notnull
     {
@@ -598,16 +601,48 @@ public static class OptionExtensions
     /// <typeparam name="U">The type contained by the second option.</typeparam>
     /// <param name="self">The first option.</param>
     /// <param name="other">The second option.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="thenFn"/> is null.</exception>
     public static Option<U> AndThen<T, U>(this Option<T> self, Func<T, Option<U>> thenFn)
         where T : notnull where U : notnull
     {
+        ThrowIfNull(thenFn);
         return self.IsSome(out var value) ? thenFn(value) : Option<U>.None;
+    }
+
+    /// <summary>
+    /// Returns <paramref name="self"/> if it contains a value, otherwise returns <paramref name="other"/>.
+    /// <para>
+    ///   Arguments passed to or are eagerly evaluated; if you are passing the result of a function call,
+    ///   it is recommended to use or_else, which is lazily evaluated.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="T">The type contained by the option.</typeparam>
+    /// <param name="self">The first option.</param>
+    /// <param name="other">The replacement option to use if the first option is <c>None</c>.</param>
+    public static Option<T> Or<T>(this Option<T> self, Option<T> other)
+        where T : notnull
+    {
+        return self.IsNone ? other : self;
+    }
+
+    /// <summary>
+    /// Returns <paramref name="self"/> if it contains a value, otherwise calls <paramref name="elseFn"/> and returns the result.
+    /// </summary>
+    /// <typeparam name="T">The type contained by the option.</typeparam>
+    /// <param name="self">The option.</param>
+    /// <param name="elseFn">The function that creates the alternate value if the option is <c>None</c>.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="elseFn"/> is null.</exception>
+    public static Option<T> OrElse<T>(this Option<T> self, Func<Option<T>> elseFn)
+        where T : notnull
+    {
+        ThrowIfNull(elseFn);
+        return self.IsNone ? elseFn() : self;
     }
 }
 
 
 // TODO: useful methods from https://doc.rust-lang.org/std/option/index.html#extracting-the-contained-value
-// and, or, xor
+// xor
 
 // Also a .Some() extension method on any type?
 // Also support for some well-known types with TryGetValue-type methods?
