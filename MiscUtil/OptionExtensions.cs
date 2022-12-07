@@ -1,4 +1,5 @@
-﻿using static System.ArgumentNullException;
+﻿using System.Runtime.CompilerServices;
+using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
@@ -372,6 +373,34 @@ public static class OptionExtensions
             return self;
 
         return Option<T>.None;
+    }
+
+    /// <summary>
+    /// Wraps the given value in an <see cref="Option{T}"/>.
+    /// <para>NOTE: Null values will be returned as <c>None</c>, while non-null values will be returned as <c>Some</c>.</para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value"></param>
+    /// <returns>The value wrapped in an <see cref="Option{T}"/></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> Some<T>(this T? value)
+        where T : class
+    {
+        return Option.Create(value);
+    }
+
+    /// <summary>
+    /// Wraps the given value in an <see cref="Option{T}"/>.
+    /// <para>NOTE: Null values will be returned as <c>None</c>, while non-null values will be returned as <c>Some</c>.</para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value"></param>
+    /// <returns>The value wrapped in an <see cref="Option{T}"/></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Option<T> Some<T>(this T? value)
+        where T : struct
+    {
+        return Option.Create(value);
     }
 }
 
