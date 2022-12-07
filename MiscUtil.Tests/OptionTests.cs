@@ -383,6 +383,19 @@ public class OptionTests
         Assert.Equal(Option.Some("other"), noneStr.OrElse(() => Option.Some("other")));
     }
 
+    [Fact]
+    public void CanXor()
+    {
+        var sx = Option.Some(42);
+        var sy = Option.Some(17);
+        var nn = Option<int>.None;
+
+        Assert.Equal(nn, nn.Xor(nn));
+        Assert.Equal(sy, nn.Xor(sy));
+        Assert.Equal(sx, sx.Xor(nn));
+        Assert.Equal(nn, sx.Xor(sy));
+    }
+
 #if NET7_0_OR_GREATER
 
     [Fact]
