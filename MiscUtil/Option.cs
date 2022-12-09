@@ -1,5 +1,6 @@
 ﻿namespace MiscUtil;
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -73,11 +74,9 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
     /// <summary>
     /// Returns an enumerator that allows the option to be iterated with a <c>foreach</c> loop.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public ReadOnlySpan<T>.Enumerator GetEnumerator()
-    {
-        return AsSpan().GetEnumerator();
-    }
+        => AsSpan().GetEnumerator();
 
     /// <summary>
     /// The Deconstruct method is used by the C# destructuring syntax to get the component
@@ -89,6 +88,7 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
     /// </summary>
     /// <param name="isSome">Whether or not this option represents a <c>Some</c> value.</param>
     /// <param name="value">The value contained in this option, if any.</param>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void Deconstruct(out bool isSome, out T? value)
     {
         isSome = _isSome;
@@ -108,10 +108,12 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
     }
 
     /// <inheritdoc />
-    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Option<T> opt && Equals(opt);
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => obj is Option<T> opt && Equals(opt);
 
     /// <inheritdoc />
-    public override int GetHashCode() => _isSome ? _value.GetHashCode() : 0;
+    public override int GetHashCode()
+        => _isSome ? _value.GetHashCode() : 0;
 
     /// <inheritdoc />
     public override string ToString()
@@ -194,39 +196,27 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
 
     /// <inheritdoc />
     public static bool operator ==(Option<T> left, Option<T> right)
-    {
-        return left.Equals(right);
-    }
+        => left.Equals(right);
 
     /// <inheritdoc />
     public static bool operator !=(Option<T> left, Option<T> right)
-    {
-        return !left.Equals(right);
-    }
+        => !left.Equals(right);
 
     /// <inheritdoc />
     public static bool operator >(Option<T> left, Option<T> right)
-    {
-        return left.CompareTo(right) > 0;
-    }
+        => left.CompareTo(right) > 0;
 
     /// <inheritdoc />
     public static bool operator <(Option<T> left, Option<T> right)
-    {
-        return left.CompareTo(right) < 0;
-    }
+        => left.CompareTo(right) < 0;
 
     /// <inheritdoc />
     public static bool operator >=(Option<T> left, Option<T> right)
-    {
-        return left.CompareTo(right) >= 0;
-    }
+        => left.CompareTo(right) >= 0;
 
     /// <inheritdoc />
     public static bool operator <=(Option<T> left, Option<T> right)
-    {
-        return left.CompareTo(right) <= 0;
-    }
+        => left.CompareTo(right) <= 0;
 }
 
 /// <summary>
