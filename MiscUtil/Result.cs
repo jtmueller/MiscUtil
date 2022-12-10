@@ -8,7 +8,6 @@ using static System.ArgumentNullException;
 namespace MiscUtil;
 
 // TODO: implement ISpanFormattable
-// TODO: [StructLayout(LayoutKind.Explicit)] to get err/value fields to inhabit the same space? Need unit tests first.
 
 public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>
     where T : notnull where TErr : notnull
