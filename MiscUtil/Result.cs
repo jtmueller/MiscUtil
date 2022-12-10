@@ -7,10 +7,9 @@ using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
-// TODO: implement IComparable<T>
-// Ok compares as less than any Err, while two Ok or two Err compare as their contained values would in T or E respectively.
+// TODO: implement ISpanFormattable
 
-public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>
+public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>
     where T : notnull where TErr : notnull
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,6 +109,18 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>
             : string.Create(CultureInfo.InvariantCulture, $"Err({_err})");
     }
 
+    public int CompareTo(Result<T, TErr> other)
+    {
+        // Ok compares as less than any Err, while two Ok or two Err compare as their contained values would in T or E respectively.
+        return (_isOk, other._isOk) switch
+        {
+            (true, true) => Comparer<T>.Default.Compare(_value, other._value),
+            (true, false) => -1,
+            (false, true) => 1,
+            (false, false) => Comparer<TErr>.Default.Compare(_err, other._err)
+        };
+    }
+
     /// <inheritdoc />
     public static bool operator ==(Result<T, TErr> left, Result<T, TErr> right)
         => left.Equals(right);
@@ -117,6 +128,22 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>
     /// <inheritdoc />
     public static bool operator !=(Result<T, TErr> left, Result<T, TErr> right)
         => !left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator >(Result<T, TErr> left, Result<T, TErr> right)
+        => left.CompareTo(right) > 0;
+
+    /// <inheritdoc />
+    public static bool operator <(Result<T, TErr> left, Result<T, TErr> right)
+        => left.CompareTo(right) < 0;
+
+    /// <inheritdoc />
+    public static bool operator >=(Result<T, TErr> left, Result<T, TErr> right)
+        => left.CompareTo(right) >= 0;
+
+    /// <inheritdoc />
+    public static bool operator <=(Result<T, TErr> left, Result<T, TErr> right)
+        => left.CompareTo(right) <= 0;
 }
 
 public static class Result
