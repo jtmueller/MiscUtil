@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
+using static MiscUtil.Option;
 
 namespace MiscUtil.Tests;
 
@@ -10,8 +11,8 @@ public class OptionTests
     [Fact]
     public void CanPerformBasicOperations()
     {
-        var none = Option<int>.None;
-        var someStruct = Option.Some(42);
+        var none = None<int>();
+        var someStruct = Some(42);
         var someNullableStruct = ((int?)42).Some();
         var someClass = "test".Some();
         var nullOptClass = Option.Create((string?)null);
@@ -39,7 +40,7 @@ public class OptionTests
     [Fact]
     public void CanMatchOnSome()
     {
-        var opt = Option.Some(42);
+        var opt = Some(42);
         var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
         Assert.Equal(84, result);
     }
@@ -47,7 +48,7 @@ public class OptionTests
     [Fact]
     public void CanMatchOnNone()
     {
-        var opt = Option.None<int>();
+        var opt = None<int>();
         var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
         Assert.Equal(-1, result);
     }
@@ -55,8 +56,8 @@ public class OptionTests
     [Fact]
     public void CanBind()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
         var someResult = someInt.Bind(x => Option.Create(x.ToString()));
         var noneResult = noneInt.Bind(x => Option.Create(x.ToString()));
         var someToNoneResult = someInt.Bind(_ => Option<DateTime>.None);
@@ -70,8 +71,8 @@ public class OptionTests
     [Fact]
     public void CanMap()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
         var someResult = someInt.Map(x => x.ToString());
         var noneResult = noneInt.Map(x => x.ToString());
 
@@ -83,8 +84,8 @@ public class OptionTests
     [Fact]
     public void CanMapOr()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
         var someResult = someInt.MapOr(x => x.ToString(), "empty");
         var noneResult = noneInt.MapOr(x => x.ToString(), "empty");
 
@@ -95,8 +96,8 @@ public class OptionTests
     [Fact]
     public void CanMapOrElse()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
         var someResult = someInt.MapOrElse(x => x.ToString(), () => "empty");
         var noneResult = noneInt.MapOrElse(x => x.ToString(), () => "empty");
 
@@ -107,8 +108,8 @@ public class OptionTests
     [Fact]
     public void CanGetSpan()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         var someSpan = someInt.AsSpan();
         var noneSpan = noneInt.AsSpan();
@@ -125,8 +126,8 @@ public class OptionTests
     [Fact]
     public void CanEnumerate()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         int value = 0;
         foreach (var x in noneInt)
@@ -147,8 +148,8 @@ public class OptionTests
     [Fact]
     public void CanExpect()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         Assert.Equal(42, someInt.Expect("Needs a value"));
         var ex = Assert.Throws<InvalidOperationException>(() => _ = noneInt.Expect("Needs a value"));
@@ -158,8 +159,8 @@ public class OptionTests
     [Fact]
     public void CanUnwrap()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         Assert.Equal(42, someInt.Unwrap());
         _ = Assert.Throws<InvalidOperationException>(() => _ = noneInt.Unwrap());
@@ -168,8 +169,8 @@ public class OptionTests
     [Fact]
     public void CanUnwrapOrDefault()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         Assert.Equal(42, someInt.UnwrapOr(-1));
         Assert.Equal(0, noneInt.UnwrapOr(default));
@@ -178,8 +179,8 @@ public class OptionTests
     [Fact]
     public void CanUnwrapOrElse()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         Assert.Equal(42, someInt.UnwrapOrElse(() => -1));
         Assert.Equal(-1, noneInt.UnwrapOrElse(() => -1));
@@ -188,8 +189,8 @@ public class OptionTests
     [Fact]
     public void CanEquate()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
         var someSameInt = Option.Some(42);
         var someOtherInt = Option.Some(4);
 
@@ -213,8 +214,8 @@ public class OptionTests
     [Fact]
     public void CanTransformToResultVal()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         var someResult = someInt.OkOr("No value found!");
         var noneResult = noneInt.OkOr("No value found!");
@@ -226,8 +227,8 @@ public class OptionTests
     [Fact]
     public void CanTransformToResultFunc()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
+        var someInt = Some(42);
+        var noneInt = None<int>();
 
         var someResult = someInt.OkOrElse(() => "No value found!");
         var noneResult = noneInt.OkOrElse(() => "No value found!");
@@ -245,7 +246,7 @@ public class OptionTests
 
         var someOkExpected = Result<Option<int>, string>.Ok(Option.Some(42));
         var someErrExpected = Result<Option<int>, string>.Err("Bad things happened");
-        var noneExpected = Result<Option<int>, string>.Ok(Option<int>.None);
+        var noneExpected = Result<Option<int>, string>.Ok(None<int>());
 
         Assert.Equal(someOkExpected, someOkTest.Transpose());
         Assert.Equal(someErrExpected, someErrTest.Transpose());
@@ -255,8 +256,8 @@ public class OptionTests
     [Fact]
     public void CanGetString()
     {
-        var someInt = Option.Some(4200);
-        var noneInt = Option<int>.None;
+        var someInt = Some(4200);
+        var noneInt = None<int>();
 
         Assert.Equal("Some(4200)", someInt.ToString());
         Assert.Equal("None", noneInt.ToString());
@@ -266,8 +267,8 @@ public class OptionTests
     [Fact]
     public void CanFormatToSpan()
     {
-        var someInt = Option.Some(4200);
-        var noneInt = Option<int>.None;
+        var someInt = Some(4200);
+        var noneInt = None<int>();
 
         Span<char> buffer = stackalloc char[255];
 
@@ -284,23 +285,23 @@ public class OptionTests
     [Fact]
     public void CanFlatten()
     {
-        var someInt = Option.Some(Option.Some(42));
-        var noneIntOuter = Option<Option<int>>.None;
-        var noneIntInner = Option.Some(Option<int>.None);
-        var someThreeLevels = Option.Some(Option.Some(Option.Some(42)));
+        var someInt = Some(Some(42));
+        var noneIntOuter = None<Option<int>>();
+        var noneIntInner = Some(None<int>());
+        var someThreeLevels = Some(Some(Some(42)));
 
         Assert.Equal(Option.Some(42), someInt.Flatten());
-        Assert.Equal(Option<int>.None, noneIntOuter.Flatten());
-        Assert.Equal(Option<int>.None, noneIntInner.Flatten());
+        Assert.Equal(None<int>(), noneIntOuter.Flatten());
+        Assert.Equal(None<int>(), noneIntInner.Flatten());
         Assert.Equal(someInt, someThreeLevels.Flatten());
     }
 
     [Fact]
     public void CanFilter()
     {
-        var someInt = Option.Some(42);
-        var noneInt = Option<int>.None;
-        var someOtherInt = Option.Some(43);
+        var someInt = Some(42);
+        var noneInt = None<int>();
+        var someOtherInt = Some(43);
 
         Assert.Equal(someInt, someInt.Filter(x => x % 2 == 0));
         Assert.Equal(noneInt, noneInt.Filter(x => x % 2 == 0));
@@ -310,12 +311,12 @@ public class OptionTests
     [Fact]
     public void CanZip()
     {
-        var x = Option.Some(42);
-        var y = Option.Some(17);
+        var x = Some(42);
+        var y = Some(17);
 
         var result = x.Zip(y);
-        var result2 = x.Zip(Option<int>.None);
-        var result3 = Option<int>.None.Zip(x);
+        var result2 = x.Zip(None<int>());
+        var result3 = None<int>().Zip(x);
 
         Assert.True(result.IsSome(out var value) && value == (42, 17));
         Assert.True(result2.IsNone);
@@ -325,12 +326,12 @@ public class OptionTests
     [Fact]
     public void CanZipWith()
     {
-        var x = Option.Some("key");
-        var y = Option.Some(17);
+        var x = Some("key");
+        var y = Some(17);
 
         var result = x.ZipWith(y, KeyValuePair.Create);
-        var result2 = x.ZipWith(Option<int>.None, KeyValuePair.Create);
-        var result3 = Option<int>.None.ZipWith(x, KeyValuePair.Create);
+        var result2 = x.ZipWith(None<int>(), KeyValuePair.Create);
+        var result3 = None<int>().ZipWith(x, KeyValuePair.Create);
 
         Assert.True(result.IsSome(out var value));
         Assert.Equal("key", value.Key);
@@ -342,44 +343,44 @@ public class OptionTests
     [Fact]
     public void CanAnd()
     {
-        var someStr = Option.Some("42");
-        var noneStr = Option<string>.None;
+        var someStr = Some("42");
+        var noneStr = None<string>();
 
         Assert.Equal(Option.Some(17), someStr.And(Option.Some(17)));
-        Assert.Equal(Option<int>.None, noneStr.And(Option.Some(17)));
-        Assert.Equal(Option<int>.None, someStr.And(Option<int>.None));
+        Assert.Equal(None<int>(), noneStr.And(Option.Some(17)));
+        Assert.Equal(None<int>(), someStr.And(None<int>()));
     }
 
     [Fact]
     public void CanAndThen()
     {
-        var someIntStr = Option.Some("42");
-        var someOtherStr = Option.Some("foo");
-        var noneStr = Option<string>.None;
+        var someIntStr = Some("42");
+        var someOtherStr = Some("foo");
+        var noneStr = None<string>();
 
-        Assert.Equal(Option.Some(42), someIntStr.AndThen(ParseInt));
-        Assert.Equal(Option<int>.None, noneStr.AndThen(ParseInt));
-        Assert.Equal(Option<int>.None, someOtherStr.AndThen(ParseInt));
+        Assert.Equal(Some(42), someIntStr.AndThen(ParseInt));
+        Assert.Equal(None<int>(), noneStr.AndThen(ParseInt));
+        Assert.Equal(None<int>(), someOtherStr.AndThen(ParseInt));
 
         static Option<int> ParseInt(string s)
-            => int.TryParse(s, out int parsed) ? Option.Some(parsed) : Option<int>.None;
+            => int.TryParse(s, out int parsed) ? Some(parsed) : None<int>();
     }
 
     [Fact]
     public void CanOr()
     {
-        var someStr = Option.Some("42");
-        var noneStr = Option<string>.None;
+        var someStr = Some("42");
+        var noneStr = None<string>();
 
-        Assert.Equal(someStr, someStr.Or(Option.Some("other")));
-        Assert.Equal(Option.Some("other"), noneStr.Or(Option.Some("other")));
+        Assert.Equal(someStr, someStr.Or(Some("other")));
+        Assert.Equal(Some("other"), noneStr.Or(Some("other")));
     }
 
     [Fact]
     public void CanOrElse()
     {
-        var someStr = Option.Some("42");
-        var noneStr = Option<string>.None;
+        var someStr = Some("42");
+        var noneStr = None<string>();
 
         Assert.Equal(someStr, someStr.OrElse(() => Option.Some("other")));
         Assert.Equal(Option.Some("other"), noneStr.OrElse(() => Option.Some("other")));
@@ -388,9 +389,9 @@ public class OptionTests
     [Fact]
     public void CanXor()
     {
-        var sx = Option.Some(42);
-        var sy = Option.Some(17);
-        var nn = Option<int>.None;
+        var sx = Some(42);
+        var sy = Some(17);
+        var nn = None<int>();
 
         Assert.Equal(nn, nn.Xor(nn));
         Assert.Equal(sy, nn.Xor(sy));
@@ -401,11 +402,11 @@ public class OptionTests
     [Fact]
     public void CanCompare()
     {
-        var a = Option.Some(1);
-        var b = Option.Some(2);
-        var c = Option.Some(3);
-        var d = Option.Some(4);
-        var n = Option<int>.None;
+        var a = Some(1);
+        var b = Some(2);
+        var c = Some(3);
+        var d = Some(4);
+        var n = None<int>();
 
 #pragma warning disable CS1718 // Comparison made to same variable
         Assert.True(b > a);
@@ -434,7 +435,7 @@ public class OptionTests
 
         var namesToNums = numsToNames.ToDictionary(kvp => kvp.Value, kvp => kvp.Key.ToString());
 
-        Assert.Equal(Option.Some("three"), numsToNames.GetOption(3));
+        Assert.Equal(Some("three"), numsToNames.GetOption(3));
         Assert.True(numsToNames.GetOption(7).IsNone);
 
         var chainResult = numsToNames
@@ -442,7 +443,7 @@ public class OptionTests
             .AndThen(namesToNums.GetOption)
             .AndThen(ParseInt);
 
-        Assert.Equal(Option.Some(4), chainResult);
+        Assert.Equal(Some(4), chainResult);
 
         chainResult = numsToNames
             .GetOption(96)
@@ -452,17 +453,17 @@ public class OptionTests
         Assert.True(chainResult.IsNone);
 
         static Option<int> ParseInt(string s)
-            => int.TryParse(s, out int parsed) ? Option.Some(parsed) : Option<int>.None;
+            => int.TryParse(s, out int parsed) ? Some(parsed) : None<int>();
     }
 
     [Fact]
     public void CanDeconstruct()
     {
-        var (isSome, value) = Option.Some(42);
+        var (isSome, value) = Some(42);
         Assert.True(isSome);
         Assert.Equal(42, value);
 
-        (isSome, value) = Option<int>.None;
+        (isSome, value) = None<int>();
         Assert.False(isSome);
         Assert.Equal(default, value);
     }
@@ -511,10 +512,10 @@ public class OptionTests
         var noVal = obj.GetPropValue<decimal>("bogus");
         var wrongVal = obj.GetPropValue<int>("string");
 
-        Assert.Equal(Option.Some(3), numVal);
-        Assert.Equal(Option.Some("test"), stringVal);
+        Assert.Equal(Some(3), numVal);
+        Assert.Equal(Some("test"), stringVal);
         Assert.True(arrVal.IsNone); // GetPropValue does not support arrays
-        Assert.Equal(Option.Some(new DateTime(2022, 12, 7)), dateVal);
+        Assert.Equal(Some(new DateTime(2022, 12, 7)), dateVal);
         Assert.True(noVal.IsNone);
         Assert.True(wrongVal.IsNone);
 
