@@ -6,7 +6,7 @@ using static MiscUtil.Option;
 
 namespace MiscUtil.Tests;
 
-public class OptionTests
+public sealed class OptionTests
 {
     [Fact]
     public void CanPerformBasicOperations()

@@ -8,6 +8,7 @@ using static System.ArgumentNullException;
 namespace MiscUtil;
 
 // TODO: implement ISpanFormattable
+// TODO: [StructLayout(LayoutKind.Explicit)] to get err/value fields to inhabit the same space? Need unit tests first.
 
 public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>
     where T : notnull where TErr : notnull
@@ -34,8 +35,8 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
         _isOk = false;
     }
 
-    private readonly T _value;
     private readonly bool _isOk;
+    private readonly T _value;
     private readonly TErr _err;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,27 +149,6 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
 
 public static class Result
 {
-    public static Result<T, TErr> Create<T, TErr>(T? value, TErr? error)
-        where T : notnull where TErr : notnull
-    {
-        return (value, error) switch
-        {
-            (T, _) => Result<T, TErr>.Ok(value),
-            (_, TErr) => Result<T, TErr>.Err(error),
-            _ => throw new ArgumentException("Either the value or the error must be non-null.")
-        };
-    }
-
-    public static Result<T, TErr> Create<T, TErr>(T? value, Func<TErr> errorFactory)
-        where T : notnull where TErr : notnull
-    {
-        ThrowIfNull(errorFactory);
-
-        return value is null 
-            ? Result<T, TErr>.Err(errorFactory()) 
-            : Result<T, TErr>.Ok(value);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TErr> Ok<T, TErr>(T value)
         where T : notnull where TErr : notnull
