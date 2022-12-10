@@ -4,8 +4,7 @@ using static System.ArgumentNullException;
 namespace MiscUtil;
 
 // TODO: useful methods from https://doc.rust-lang.org/std/result/
-// and, and_then or, or_else
-// Also a .Ok() extension method on any type?
+// Also a .Ok() extension method on any type? Probably not, would need to specify both generic types.
 
 public static class ResultExtensions
 {
@@ -145,5 +144,41 @@ public static class ResultExtensions
         }
 
         return Option.Some(Result<T, TErr>.Err(err!));
+    }
+
+    public static Result<U, TErr> And<T, TErr, U>(this Result<T, TErr> self, Result<U, TErr> other)
+        where T : notnull where TErr : notnull where U : notnull
+    {
+        var selfOk = !self.IsErr(out var selfErr);
+        var otherOk = other.IsOk(out _);
+
+        if (selfOk == otherOk || selfOk)
+            return other;
+
+        return Result<U, TErr>.Err(selfErr!);
+    }
+
+    public static Result<U, TErr> AndThen<T, TErr, U>(this Result<T, TErr> self, Func<T, Result<U, TErr>> thenFunc)
+        where T : notnull where TErr : notnull where U : notnull
+    {
+        ThrowIfNull(thenFunc);
+        var (isOk, val, err) = self;
+        return isOk ? thenFunc(val!) : Result<U, TErr>.Err(err!);
+    }
+
+    public static Result<T, UErr> Or<T, TErr, UErr>(this Result<T, TErr> self, Result<T, UErr> other)
+        where T : notnull where TErr : notnull where UErr : notnull
+    {
+        if (self.IsOk(out var value))
+            return Result<T, UErr>.Ok(value);
+
+        return other;
+    }
+
+    public static Result<T, UErr> OrElse<T, TErr, UErr>(this Result<T, TErr> self, Func<TErr, Result<T, UErr>> elseFunc)
+        where T : notnull where TErr : notnull where UErr : notnull
+    {
+        var (isOk, val, err) = self;
+        return isOk ? Result<T, UErr>.Ok(val!) : elseFunc(err!);
     }
 }
