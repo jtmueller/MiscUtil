@@ -8,40 +8,6 @@ namespace MiscUtil;
 public static class OptionExtensions
 {
     /// <summary>
-    /// Executes and returns the value from either the <paramref name="onSome"/>
-    /// or <paramref name="onNone"/> function, depending on the state of the option.
-    /// </summary>
-    /// <typeparam name="T">The type of the option.</typeparam>
-    /// <typeparam name="U">The type returned by the match functions.</typeparam>
-    /// <param name="self">The option to match on.</param>
-    /// <param name="onSome">The match function that will be executed for a <c>Some</c> value.</param>
-    /// <param name="onNone">The match function that will be executed for a <c>None</c> value.</param>
-    /// <returns>The value given by the chosen match function.</returns>
-    public static U Match<T, U>(this Option<T> self, Func<T, U> onSome, Func<U> onNone)
-        where T : notnull
-    {
-        return self.IsSome(out var value) ? onSome(value) : onNone();
-    }
-
-    /// <summary>
-    /// If the option has a value, passes that value to the <paramref name="binder"/> function,
-    /// returning the option returned from that function. Useful for chaining a series of operations
-    /// that each might fail.
-    /// </summary>
-    /// <typeparam name="T">The type of the option.</typeparam>
-    /// <typeparam name="U">The type returned by the binder functions.</typeparam>
-    /// <param name="self">The option to bind.</param>
-    /// <param name="binder">The function that will be run on the option's value, if there is one.</param>
-    /// <returns>The return value of the binder function, or <c>None</c>.</returns>
-    public static Option<U> Bind<T, U>(this Option<T> self, Func<T, Option<U>> binder)
-        where T : notnull where U : notnull
-    {
-        return self.IsSome(out var value)
-            ? binder(value)
-            : Option<U>.None;
-    }
-
-    /// <summary>
     /// If the option has a value, passes that option to the mapper function and returns that value
     /// as a <c>Some</c>.
     /// </summary>

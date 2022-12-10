@@ -38,37 +38,6 @@ public class OptionTests
     }
 
     [Fact]
-    public void CanMatchOnSome()
-    {
-        var opt = Some(42);
-        var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
-        Assert.Equal(84, result);
-    }
-
-    [Fact]
-    public void CanMatchOnNone()
-    {
-        var opt = None<int>();
-        var result = opt.Match(onSome: x => x * 2, onNone: () => -1);
-        Assert.Equal(-1, result);
-    }
-
-    [Fact]
-    public void CanBind()
-    {
-        var someInt = Some(42);
-        var noneInt = None<int>();
-        var someResult = someInt.Bind(x => Option.Create(x.ToString()));
-        var noneResult = noneInt.Bind(x => Option.Create(x.ToString()));
-        var someToNoneResult = someInt.Bind(_ => Option<DateTime>.None);
-
-        Assert.True(someResult.IsSome(out var str));
-        Assert.Equal("42", str);
-        Assert.True(noneResult.IsNone);
-        Assert.False(someToNoneResult.IsSome(out _));
-    }
-
-    [Fact]
     public void CanMap()
     {
         var someInt = Some(42);
@@ -191,8 +160,8 @@ public class OptionTests
     {
         var someInt = Some(42);
         var noneInt = None<int>();
-        var someSameInt = Option.Some(42);
-        var someOtherInt = Option.Some(4);
+        var someSameInt = Some(42);
+        var someOtherInt = Some(4);
 
         Assert.Equal(someInt, someSameInt);
         Assert.NotEqual(someInt, noneInt);
@@ -240,11 +209,11 @@ public class OptionTests
     [Fact]
     public void CanTranspose()
     {
-        var someOkTest = Option<Result<int, string>>.Some(Result<int, string>.Ok(42));
-        var someErrTest = Option<Result<int, string>>.Some(Result<int, string>.Err("Bad things happened"));
-        var noneTest = Option<Result<int, string>>.None;
+        var someOkTest = Some(Result<int, string>.Ok(42));
+        var someErrTest = Some(Result<int, string>.Err("Bad things happened"));
+        var noneTest = None<Result<int, string>>();
 
-        var someOkExpected = Result<Option<int>, string>.Ok(Option.Some(42));
+        var someOkExpected = Result<Option<int>, string>.Ok(Some(42));
         var someErrExpected = Result<Option<int>, string>.Err("Bad things happened");
         var noneExpected = Result<Option<int>, string>.Ok(None<int>());
 
@@ -290,7 +259,7 @@ public class OptionTests
         var noneIntInner = Some(None<int>());
         var someThreeLevels = Some(Some(Some(42)));
 
-        Assert.Equal(Option.Some(42), someInt.Flatten());
+        Assert.Equal(Some(42), someInt.Flatten());
         Assert.Equal(None<int>(), noneIntOuter.Flatten());
         Assert.Equal(None<int>(), noneIntInner.Flatten());
         Assert.Equal(someInt, someThreeLevels.Flatten());
@@ -346,8 +315,8 @@ public class OptionTests
         var someStr = Some("42");
         var noneStr = None<string>();
 
-        Assert.Equal(Option.Some(17), someStr.And(Option.Some(17)));
-        Assert.Equal(None<int>(), noneStr.And(Option.Some(17)));
+        Assert.Equal(Some(17), someStr.And(Some(17)));
+        Assert.Equal(None<int>(), noneStr.And(Some(17)));
         Assert.Equal(None<int>(), someStr.And(None<int>()));
     }
 
@@ -382,8 +351,8 @@ public class OptionTests
         var someStr = Some("42");
         var noneStr = None<string>();
 
-        Assert.Equal(someStr, someStr.OrElse(() => Option.Some("other")));
-        Assert.Equal(Option.Some("other"), noneStr.OrElse(() => Option.Some("other")));
+        Assert.Equal(someStr, someStr.OrElse(() => Some("other")));
+        Assert.Equal(Some("other"), noneStr.OrElse(() => Some("other")));
     }
 
     [Fact]
@@ -424,6 +393,8 @@ public class OptionTests
     [Fact]
     public void CanGetOptionFromDictionary()
     {
+        var ParseInt = Option.Bind<string, int>(int.TryParse);
+
         Dictionary<int, string> numsToNames = new()
         {
             { 1, "one" },
@@ -452,8 +423,6 @@ public class OptionTests
 
         Assert.True(chainResult.IsNone);
 
-        static Option<int> ParseInt(string s)
-            => int.TryParse(s, out int parsed) ? Some(parsed) : None<int>();
     }
 
     [Fact]
@@ -483,10 +452,10 @@ public class OptionTests
         var namesToNums = numsToNames.ToDictionary(kvp => kvp.Value, kvp => kvp.Key.ToString());
 
         var result = numsToNames.GetOption(2)
-            .AndThen(Option.Bind<string, string>(namesToNums.TryGetValue))
-            .AndThen(Option.Bind<string, int>(int.TryParse));
+            .AndThen(Bind<string, string>(namesToNums.TryGetValue))
+            .AndThen(Bind<string, int>(int.TryParse));
 
-        Assert.Equal(Option.Some(2), result);
+        Assert.Equal(Some(2), result);
     }
 
 #if NET7_0_OR_GREATER
@@ -549,9 +518,9 @@ public class OptionTests
             .GetPropOption("string"u8)
             .AndThen(x => Option.Bind<int>(x.TryGetInt32));
 
-        Assert.Equal(Option.Some(3), numVal);
-        Assert.Equal(Option.Some("test"), stringVal);
-        Assert.Equal(Option.Some(new DateTime(2022, 12, 7)), dateVal);
+        Assert.Equal(Some(3), numVal);
+        Assert.Equal(Some("test"), stringVal);
+        Assert.Equal(Some(new DateTime(2022, 12, 7)), dateVal);
         Assert.True(noVal.IsNone);
         Assert.True(wrongVal.IsNone);
     }

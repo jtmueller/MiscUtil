@@ -74,6 +74,14 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
         return AsSpan().GetEnumerator();
     }
 
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return _isOk
+            ? string.Create(CultureInfo.InvariantCulture, $"Ok({_value})")
+            : string.Create(CultureInfo.InvariantCulture, $"Err({_err})");
+    }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Deconstruct(out bool isOk, out T? value, out TErr? err)
     {
@@ -100,14 +108,6 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
     /// <inheritdoc />
     public override int GetHashCode()
         => _isOk ? _value.GetHashCode() : _err.GetHashCode();
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return _isOk
-            ? string.Create(CultureInfo.InvariantCulture, $"Ok({_value})")
-            : string.Create(CultureInfo.InvariantCulture, $"Err({_err})");
-    }
 
     public int CompareTo(Result<T, TErr> other)
     {
