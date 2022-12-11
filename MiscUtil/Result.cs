@@ -7,9 +7,7 @@ using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
-// TODO: implement ISpanFormattable
-
-public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>
+public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>, ISpanFormattable
     where T : notnull where TErr : notnull
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,6 +78,83 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
         return _isOk
             ? string.Create(CultureInfo.InvariantCulture, $"Ok({_value})")
             : string.Create(CultureInfo.InvariantCulture, $"Err({_err})");
+    }
+
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        if (string.IsNullOrEmpty(format))
+        {
+            return _isOk
+                ? string.Create(formatProvider, $"Ok({_value})")
+                : string.Create(formatProvider, $"Err({_err})");
+        }
+
+        return _isOk
+            ? string.Format(formatProvider, "Ok({0:" + format + "})", _value)
+            : string.Format(formatProvider, "Err({0:" + format + "})", _err);
+    }
+
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (_isOk)
+        {
+            if (_value is ISpanFormattable formatVal)
+            {
+                if ("Ok(".TryCopyTo(destination) &&
+                    formatVal.TryFormat(destination[3..], out int valWritten, format, provider))
+                {
+                    destination = destination[(3 + valWritten)..];
+                    if (destination.Length >= 1)
+                    {
+                        destination[0] = ')';
+                        charsWritten = valWritten + 4;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                string output = format.IsEmpty
+                    ? string.Create(provider, $"Ok({_value})")
+                    : string.Format(provider, $"Ok({{0:{format}}})", _value);
+
+                if (output.TryCopyTo(destination))
+                {
+                    charsWritten = output.Length;
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            if (_err is ISpanFormattable formatErr)
+            {
+                if ("Err(".TryCopyTo(destination) &&
+                    formatErr.TryFormat(destination[4..], out int errWritten, ReadOnlySpan<char>.Empty, provider))
+                {
+                    destination = destination[(4 + errWritten)..];
+                    if (destination.Length >= 1)
+                    {
+                        destination[0] = ')';
+                        charsWritten = errWritten + 5;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                string output = string.Create(provider, $"Err({_err})");
+
+                if (output.TryCopyTo(destination))
+                {
+                    charsWritten = output.Length;
+                    return true;
+                }
+            }
+        }
+
+        charsWritten = 0;
+        return false;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

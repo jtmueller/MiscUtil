@@ -124,55 +124,6 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
     }
 
     /// <inheritdoc />
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
-    {
-        if (_isSome)
-        {
-            if (_value is ISpanFormattable fmt)
-            {
-                if ("Some(".AsSpan().TryCopyTo(destination))
-                {
-                    var remainingDest = destination[5..];
-                    if (fmt.TryFormat(remainingDest, out var innerWritten, format, provider))
-                    {
-                        remainingDest = remainingDest[innerWritten..];
-                        if (remainingDest.Length >= 1)
-                        {
-                            remainingDest[0] = ')';
-                            charsWritten = innerWritten + 6;
-                            return true;
-                        }
-                    }
-                }
-                else
-                {
-                    var output = format.IsEmpty
-                        ? string.Create(provider, $"Some({_value})")
-                        : string.Format(provider, $"Some({{0:{format}}})", _value);
-
-                    if (output.AsSpan().TryCopyTo(destination))
-                    {
-                        charsWritten = output.Length;
-                        return true;
-                    }
-                }
-            }
-
-            charsWritten = 0;
-            return false;
-        }
-
-        if ("None".AsSpan().TryCopyTo(destination))
-        {
-            charsWritten = 4;
-            return true;
-        }
-
-        charsWritten = 0;
-        return false;
-    }
-
-    /// <inheritdoc />
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return _isSome
@@ -180,6 +131,47 @@ public readonly struct Option<T> : IEquatable<Option<T>>, IComparable<Option<T>>
                 ? string.Create(formatProvider, $"Some({_value})")
                 : string.Format(formatProvider, "Some({0:" + format + "})", _value)
             : "None";
+    }
+
+    /// <inheritdoc />
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (_isSome)
+        {
+            if (_value is ISpanFormattable formatVal)
+            {
+                if ("Some(".TryCopyTo(destination) && formatVal.TryFormat(destination[5..], out var innerWritten, format, provider))
+                {
+                    destination = destination[(5 + innerWritten)..];
+                    if (destination.Length >= 1)
+                    {
+                        destination[0] = ')';
+                        charsWritten = innerWritten + 6;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                var output = format.IsEmpty
+                    ? string.Create(provider, $"Some({_value})")
+                    : string.Format(provider, $"Some({{0:{format}}})", _value);
+
+                if (output.TryCopyTo(destination))
+                {
+                    charsWritten = output.Length;
+                    return true;
+                }
+            }
+        }
+        else if ("None".TryCopyTo(destination))
+        {
+            charsWritten = 4;
+            return true;
+        }
+
+        charsWritten = 0;
+        return false;
     }
 
     /// <inheritdoc/>

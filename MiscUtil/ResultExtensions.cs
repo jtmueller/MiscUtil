@@ -3,9 +3,6 @@ using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
-// TODO: useful methods from https://doc.rust-lang.org/std/result/
-// Also a .Ok() extension method on any type? Probably not, would need to specify both generic types.
-
 public static class ResultExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
