@@ -7,12 +7,27 @@ using static System.ArgumentNullException;
 
 namespace MiscUtil;
 
+/// <summary>
+/// <see cref="Result{T, TErr}"/> is used to return the result of an operation that might fail, without
+/// throwing an exception. Either <see cref="IsOk"/> will return <c>true</c> and the contained result value,
+/// or else <see cref="IsErr"/> will return <c>true</c> and the contained error object.
+/// </summary>
+/// <typeparam name="T">The type of the return value.</typeparam>
+/// <typeparam name="TErr">The type of the error value.</typeparam>
 public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>, ISpanFormattable
     where T : notnull where TErr : notnull
 {
+    /// <summary>
+    /// Returns a <see cref="Result{T, TErr}"/> in the Ok state, containing the given value.
+    /// </summary>
+    /// <param name="value">The value the result should contain.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TErr> Ok(T value) => new(value);
 
+    /// <summary>
+    /// Returns a <see cref="Result{T, TErr}"/> in the Err state, containg the given error value.
+    /// </summary>
+    /// <param name="error">The error the result should contain.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TErr> Err(TErr error) => new(error);
 
@@ -36,6 +51,10 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
     private readonly T _value;
     private readonly TErr _err;
 
+    /// <summary>
+    /// Returns <c>true</c> if the result is in the Ok state, and <paramref name="value"/> will contain the return value.
+    /// </summary>
+    /// <param name="value">The returned value, if any.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsOk([MaybeNullWhen(false)] out T value)
     {
@@ -43,6 +62,10 @@ public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparabl
         return _isOk;
     }
 
+    /// <summary>
+    /// Returnd <c>true</c> if the result is in the error state, and <paramref name="error"/> will contain the error value.
+    /// </summary>
+    /// <param name="error">The returned error value, if any.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsErr([MaybeNullWhen(false)] out TErr error)
     {

@@ -18,7 +18,6 @@ public static class ResultExtensions
     public static Result<U, TErr> Map<T, TErr, U>(this Result<T, TErr> self, Func<T, U> mapper)
         where T : notnull where TErr : notnull where U : notnull
     {
-        ThrowIfNull(mapper);
         return self.Match(
             onOk: x => Result<U, TErr>.Ok(mapper(x)),
             onErr: Result<U, TErr>.Err
@@ -29,7 +28,6 @@ public static class ResultExtensions
     public static Result<T, UErr> MapErr<T, TErr, UErr>(this Result<T, TErr> self, Func<TErr, UErr> errMapper)
         where T : notnull where TErr : notnull where UErr : notnull
     {
-        ThrowIfNull(errMapper);
         return self.Match(
             onOk: Result<T, UErr>.Ok,
             onErr: e => Result<T, UErr>.Err(errMapper(e))
